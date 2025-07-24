@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController; // Import our new controllers
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CatalogueController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,8 +19,27 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Public Routes
-Route::get('/', [HomeController::class, 'index'])->name('welcome');
-Route::get('/books/browse', [UserController::class, 'browseBooks'])->name('books.browse'); // Accessible by anyone
+// Route::get('/', [HomeController::class, 'index'])->name('welcome');
+// Route::get('/books/browse', [UserController::class, 'browseBooks'])->name('books.browse'); // Accessible by anyone
+
+//home page
+Route::get('/', function() {
+    return view('welcome');
+});
+
+//library-catalogue
+Route::get('/library-catalogue', [CatalogueController::class, 'index']);
+
+//book with id
+Route::get('/book/{id}', function($id) {
+    // You can use $id here
+    return view('book-info');
+});
+
+//exam-bank
+Route::get('/exam-bank', function() {
+    return response('<p>Exams Coming Soon!!</p>');
+});
 
 // Authenticated User Routes (Student/General User)
 // The 'auth' middleware ensures only logged-in users can access these.
