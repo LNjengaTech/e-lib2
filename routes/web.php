@@ -31,10 +31,7 @@ Route::get('/', function() {
 Route::get('/library-catalogue', [CatalogueController::class, 'index']);
 
 //book with id
-Route::get('/book/{id}', function($id) {
-    // You can use $id here
-    return view('book-info');
-});
+Route::get('/book/{id}', [CatalogueController::class, 'show']);
 
 //exam-bank
 Route::get('/exam-bank', function() {

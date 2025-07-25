@@ -17,4 +17,11 @@ class CatalogueController extends Controller
                 ->paginate(10)
         ]);
     }
+
+    //get book with id
+    public function show($id) {
+        return view('book-info', [
+            'book' => Catalogue::find($id)
+        ]);
+    }
 }
