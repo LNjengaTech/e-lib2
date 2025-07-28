@@ -18,14 +18,14 @@
                 class="mx-6 max-1000px:mx-2 max-630px:mx-1  cursor-pointer hover:bg-light hover:text-dark transition-all  rounded duration-300">
                 <a href="/exam-bank" class="p-1">Exam Bank</a>
             </li>
-            <a href="/login"
+            <a href="{{ route('login') }}"
                 class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all 630px:hidden mt-2">
                 <span>Login</span>
                 <i class="fa-solid fa-book-open">
                 </i></a>
         </ul>
         <section class="max-630px:hidden">
-            <a href="/login" class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all ">
+            <a href="{{ route('login') }}" class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all ">
                 <span>Login</span>
                 <i class="fa-solid fa-book-open">
                 </i></a>

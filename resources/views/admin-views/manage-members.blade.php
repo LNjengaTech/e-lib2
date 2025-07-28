@@ -13,7 +13,7 @@
                         <p class="text-gray-700">This page allows Librarians to manage student members and add new ones.
                         </p>
                         <button @click="showAddMemberModal = true"
-                            class="px-4 py-2 bg-blue-600 text-gray-700 rounded-xl hover:bg-blue-700 shadow-md transition duration-150 ease-in-out">
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-md transition duration-150 ease-in-out">
                             Add New Member
                         </button>
                     </div>
