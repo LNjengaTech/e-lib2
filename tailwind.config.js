@@ -19,6 +19,8 @@ export default {
             colors: {
                 dark: "#000",
                 light: "#fff",
+                blue: "rgb(54, 162, 235)",
+                yellow: 'rgb(255, 205, 86)'
             },
             screens: {
                 "1800px": "1800px",
@@ -27,8 +29,11 @@ export default {
                 "1300px": "1300px",
                 '1230px': '1230px',
                 '1150px': '1150px',
+                '1050px': '1060px',
                 "1000px": "1000px",
+                "920px": '920px',
                 '890px': '890px',
+                '730px': '730px',
                 "630px": "630px",
                 "600px": "600px",
                 '440px': '440px',
