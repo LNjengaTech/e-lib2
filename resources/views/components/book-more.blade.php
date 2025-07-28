@@ -9,18 +9,12 @@
             title='{{ $book->title }} by {{ $book->author }}'
             class="w-[90%] mx-auto h-[70%] object-fit rounded shadow shadow-dark">
         <p class="text-dark/80 text-center my-2">{{ $title }}</p>
-    </a>
-
-    @if ($book->available_copies)
-        <a href="/borrow/{{ $book->id }}"
+    </a>   
+    <a href="/book/{{ $book->id }}"
             class="bg-dark w-full block text-center p-2 rounded hover:text-light/90 hover:bg-dark/90 transition-all">
-            Borrow
+            View
         </a>
-    @else
-        <button
-            class="bg-dark/50 cursor-not-allowed disabled:true w-full block text-center p-2 rounded transition-all">Checked
-            out
-        </button>
-    @endif
+
+    
     </a>
 </section>
