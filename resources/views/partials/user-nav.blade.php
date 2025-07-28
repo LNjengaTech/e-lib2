@@ -1,5 +1,5 @@
 <header class="bg-light text-dark flex justify-between items-center w-full px-1">
-    <article class="flex items-center">
+    <article class="flex items-center text-sm">
         <a href="" class="fa-solid fa-user text-3xl"></a>
         <div class="flex flex-col px-2">
             <span>Your Name</span>
@@ -7,7 +7,29 @@
         </div>
     </article>
 
-    <article>
-        <a class="fa-solid fa-gear"></a>
+    <article class="flex items-center gap-3 text-sm">
+        <div class="flex flex-col">
+             <p id="user-time" class="time"></p>
+             <p id="user-day"></p>
+        </div>
+       
+        <a href="" class="fa-solid fa-gear text-2xl"></a>
     </article>
+
+    <script>
+        const date = new Date();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const day = date.getDay();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        const get_date = new Date().getDate();
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        const time = hours + ":" + minutes;
+        const userTime = document.getElementById('user-time').innerText = time;
+        const userDay = document.getElementById('user-day').innerText = days[day];
+        const userMonth = document.getElementById('user-day').innerText += ", " + months[month];
+         const userDate = document.getElementById('user-day').innerText += " " + get_date;
+    </script>
 </header>
