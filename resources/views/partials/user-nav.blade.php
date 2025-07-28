@@ -28,9 +28,9 @@
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         function updateTime() {
-            if (hours < 10) {
-                hours = "0" + hours;
-            }
+            // if (hours < 10) {
+            //     hours = "0" + hours;
+            // }
             if (minutes < 10) {
                 minutes = "0" + minutes;
             }
