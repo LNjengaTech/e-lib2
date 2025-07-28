@@ -53,4 +53,7 @@
     </div>
 </x-app-layout> --}}
 
+@extends('layouts.user')
+@section('content')
 <div>Borrowed</div>
+@endsection

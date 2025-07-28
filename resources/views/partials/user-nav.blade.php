@@ -1,7 +1,7 @@
 <header class="bg-light text-dark flex justify-between items-center w-full px-1 py-4">
     <article class="flex items-center text-sm">
         {{-- <a href="" class="fa-solid fa-user text-3xl"></a> --}}
-        <div class="flex flex-col px-10">
+        <div class="flex flex-col px-10 890px:px-1">
             <span class="font-bold">Your Name</span>
             <span>User</span>
         </div>
@@ -45,6 +45,6 @@
         }
         updateTime();
         //update time after every 1 minute
-        setInterval(updateTime, 1 * 60000);
+        setTimeout(updateTime, 1 * 60000);
     </script>
 </header>

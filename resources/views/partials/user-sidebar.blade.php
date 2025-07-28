@@ -47,7 +47,7 @@
                 </svg>
                 {{ __('Returned Books') }}
             </x-sidebar-link>
-            <x-sidebar-link :href="route('my-penalties')" :active="request()->routeIs('user-books')">
+            <x-sidebar-link :href="route('my-penalties')" :active="request()->routeIs('my-penalties')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-red-500" fill="none"
                     viewBox="0 0 24 24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                     class="size-6">
