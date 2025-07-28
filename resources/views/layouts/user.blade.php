@@ -27,13 +27,10 @@
 
         <section class="flex-1 flex flex-col ml-64 max-890px:ml-0">
             @include('partials.user-nav')
-            <section class=" px-10 max-890px:px-1 mt-10 h-screen">
+            <section class=" px-10 max-890px:px-1 mt-10 ">
                 @yield('content')
             </section>
-
-            @include('partials._homeFooter')
         </section>
-
     </section>
 
 </body>
