@@ -30,15 +30,19 @@ Route::get('/library-catalogue/category/{category}', [CatalogueController::class
 
 
 //book with id
-Route::get('/book/{id}', function($id) {
-    // You can use $id here
-    return view('book-info');
-});
+Route::get('/book/{id}', [CatalogueController::class, 'show']);
 
 //exam-bank
 Route::get('/exam-bank', function() {
     return response('<p>Exams Coming Soon!!</p>');
 });
+
+//! USER -- Add them to the authenticated routes later
+//User dashboard
+Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
+
+// User books
+Route::get('/user-books', [UserController::class, 'books'])->name('user-books');
 
 // Authenticated User Routes (Student/General User)
 Route::middleware(['auth', 'verified'])->group(function () {

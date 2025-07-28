@@ -15,14 +15,18 @@
 //         return view('users-views.dashboard');
 //     }
 
+    public function books() {
+        return (view('users-views.books'));
+    }
+
 //     /**
 //      * Display the browse books page for users.
 //      * Accessible by anyone (public and authenticated users).
 //      */
-//     public function browseBooks()
-//     {
-//         return view('users-views.browse-books');
-//     }
+//     // public function browseBooks()
+//     // {
+//     //     return view('users-views.browse-books');
+//     // }
 
 //     /**
 //      * Display the user's borrowed and reserved books.
