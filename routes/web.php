@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController; // Import our new controllers
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CatalogueController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,16 +19,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Public Routes
-// Route::get('/', [HomeController::class, 'index'])->name('welcome');
-// Route::get('/books/browse', [UserController::class, 'browseBooks'])->name('books.browse'); // Accessible by anyone
-
-//home page
 Route::get('/', function() {
     return view('welcome');
 });
 
 //library-catalogue
 Route::get('/library-catalogue', [CatalogueController::class, 'index']);
+// New route for browsing books by category
+Route::get('/library-catalogue/category/{category}', [CatalogueController::class, 'browseByCategory'])->name('catalogue.byCategory');
+
 
 //book with id
 Route::get('/book/{id}', function($id) {
@@ -42,15 +41,7 @@ Route::get('/exam-bank', function() {
 });
 
 // Authenticated User Routes (Student/General User)
-// The 'auth' middleware ensures only logged-in users can access these.
-// The 'verified' middleware ensures only email-verified users can access these.
 Route::middleware(['auth', 'verified'])->group(function () {
-    // User Dashboard (default Breeze dashboard route modified)
-    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
-
-    // User-specific library routes
-    Route::get('/my-borrowed-books', [UserController::class, 'myBorrowedBooks'])->name('user.my-borrowed-books');
-
     // Breeze Profile Routes (keep these as they are)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -59,33 +50,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 // Admin Routes
-// We'll create a new middleware 'admin' later to restrict access to librarians and super admins.
-// For now, any authenticated user can technically access these, but we'll fix that soon.
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/books', [AdminController::class, 'manageBooks'])->name('books');
+    Route::post('/books', [AdminController::class, 'storeBook'])->name('books.store');
+
+    // Routes for editing and deleting books
+    Route::put('/books/{book}', [AdminController::class, 'updateBook'])->name('books.update');
+    Route::delete('/books/{book}', [AdminController::class, 'destroyBook'])->name('books.destroy');
+
     Route::get('/loans', [AdminController::class, 'manageLoans'])->name('loans');
     Route::get('/reservations', [AdminController::class, 'manageReservations'])->name('reservations');
     Route::get('/fines', [AdminController::class, 'manageFines'])->name('fines');
-    Route::get('/members', [AdminController::class, 'manageMembers'])->name('members'); // New route for managing members
+    Route::get('/members', [AdminController::class, 'manageMembers'])->name('members');
 
     // Super Admin Specific Routes (will be further restricted later)
     Route::get('/add-librarian', [AdminController::class, 'addLibrarian'])->name('add-librarian');
-    // Route::get('/create-student-account', [AdminController::class, 'createStudentAccount'])->name('create-student-account'); // Removed as per new requirement
 });
 
 // Laravel Breeze Auth Routes (keep these as they are)
 require __DIR__.'/auth.php';
-
-
-
-
-
-
-
-
-
-
 
 
 
