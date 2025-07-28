@@ -1,4 +1,4 @@
-<x-app-layout>
+{{-- <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-white leading-tight">
             {{ __('Browse Available Books') }}
@@ -40,4 +40,9 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-app-layout> --}}
+
+@extends('users-views.dashboard')
+@section('content')
+<div>books</div>
+@endsection

@@ -38,6 +38,13 @@ Route::get('/exam-bank', function() {
     return response('<p>Exams Coming Soon!!</p>');
 });
 
+//! USER -- Add them to the authenticated routes later
+//User dashboard
+Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
+
+// User books
+Route::get('/user-books', [UserController::class, 'books'])->name('user-books');
+
 // Authenticated User Routes (Student/General User)
 // The 'auth' middleware ensures only logged-in users can access these.
 // The 'verified' middleware ensures only email-verified users can access these.
