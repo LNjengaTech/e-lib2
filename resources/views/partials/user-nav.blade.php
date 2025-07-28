@@ -18,18 +18,32 @@
 
     <script>
         const date = new Date();
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const day = date.getDay();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let day = date.getDay();
         const month = date.getMonth();
         const year = date.getFullYear();
-        const get_date = new Date().getDate();
+        let get_date = new Date().getDate();
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function get_time() {
+           if(hours < 10) {
+            hours = "0" + hours; 
+        }
+        if(minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        if(get_date < 10) {
+            get_date = "0" + get_date;
+        }
         const time = hours + ":" + minutes;
         const userTime = document.getElementById('user-time').innerText = time;
         const userDay = document.getElementById('user-day').innerText = days[day];
         const userMonth = document.getElementById('user-day').innerText += ", " + months[month];
          const userDate = document.getElementById('user-day').innerText += " " + get_date;
+}
+
+setInterval(get_time, 2 * 60000);
+ 
     </script>
 </header>

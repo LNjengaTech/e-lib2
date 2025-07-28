@@ -3,7 +3,7 @@
     $title = substr($book->title, 0, 20)
 @endphp
 
-<section class="w-[180px] h-[340px] p-1">
+<section class="w-[180px] h-[340px] max-440px:w-full max-440px:h-auto p-1">
     <a href="/book/{{ $book->id }}">
         <img src={{ asset('/images/book-placeholder.jpg') }} alt="book"
             title='{{ $book->title }} by {{ $book->author }}'

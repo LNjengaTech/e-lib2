@@ -24,9 +24,9 @@
     <section class="flex">
         @include('partials.user-sidebar')
 
-        <section class="flex-1 flex flex-col ml-64 max-600px:ml-0">
+        <section class="flex-1 flex flex-col ml-64 max-890px:ml-0">
             @include('partials.user-nav')
-            <section class=" px-10 max-600px:px-1">
+            <section class=" px-10 max-890px:px-1">
                 @yield('content')
             </section>
 

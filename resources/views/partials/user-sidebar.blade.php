@@ -1,25 +1,25 @@
-{{-- <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto fixed inset-0 max-600px:absolute max-600px:top-0 max-600px:bottom-0 max-600px:h-screen"> --}}
+{{-- <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto fixed inset-0 max-890px:absolute max-890px:top-0 max-890px:bottom-0 max-890px:h-screen"> --}}
 <div x-data="{ open: false }">
-    <button class="bg-white px-2 text-xl 600px:hidden">
+    <button class="bg-white px-2 text-xl 890px:hidden  absolute top-12 shadow shadow-dark mx-1">
         <a class="fa-solid fa-bars cursor-pointer" x-on:click="open=true"></a>
     </button>
 <!-- Overlay -->
     <div 
-    x-show="open && window.innerWidth < 640"
+    x-show="open && window.innerWidth < 890"
     x-transition.opacity
     class="fixed inset-0 bg-black bg-opacity-50 z-40"
     x-on:click="open = false"
     ></div>
 
-    <aside x-show="open || window.innerWidth >= 600" x-on:resize.window="if (window.innerWidth >= 600) open = true"
+    <aside x-show="open || window.innerWidth >= 890" x-on:resize.window="if (window.innerWidth >= 890) open = true"
         :class="{ 'hidden': !open && window.innerWidth < 640 }"
-        class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto fixed inset-y-0 max-600px:fixed max-600px:inset-y-0 left-0 z-50">
+        class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto fixed inset-y-0 max-890px:fixed max-890px:inset-y-0 left-0 z-50">
 
         <div class="p-6 border-b border-gray-700 flex items-center justify-between">
             <a href="{{ route('user-dashboard') }}" class="flex items-center space-x-3">
 
                 <span class="text-xl font-semibold">My Dashboard</span>
-                <a class="fa-solid fa-x cursor-pointer 600px:hidden" x-on:click="open=false "></a>
+                <a class="fa-solid fa-x cursor-pointer 890px:hidden" x-on:click="open=false "></a>
 
             </a>
         </div>
