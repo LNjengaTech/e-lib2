@@ -1,7 +1,7 @@
 <header class="bg-light text-dark flex justify-between items-center w-full px-1 py-4">
     <article class="flex items-center text-sm">
-        <a href="" class="fa-solid fa-user text-3xl"></a>
-        <div class="flex flex-col px-2">
+        {{-- <a href="" class="fa-solid fa-user text-3xl"></a> --}}
+        <div class="flex flex-col px-10">
             <span class="font-bold">Your Name</span>
             <span>User</span>
         </div>

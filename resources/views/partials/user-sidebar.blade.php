@@ -1,6 +1,6 @@
 {{-- <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto fixed inset-0 max-890px:absolute max-890px:top-0 max-890px:bottom-0 max-890px:h-screen"> --}}
 <div x-data="{ open: false }">
-    <button class="bg-white px-2 text-xl 890px:hidden  absolute top-12 shadow shadow-dark mx-1">
+    <button class="bg-white px-2 text-xl 890px:hidden  absolute top-5 shadow shadow-dark mx-1">
         <a class="fa-solid fa-bars cursor-pointer" x-on:click="open=true"></a>
     </button>
     <!-- Overlay -->
