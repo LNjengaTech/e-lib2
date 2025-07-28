@@ -3,13 +3,9 @@
     <button class="bg-white px-2 text-xl 890px:hidden  absolute top-12 shadow shadow-dark mx-1">
         <a class="fa-solid fa-bars cursor-pointer" x-on:click="open=true"></a>
     </button>
-<!-- Overlay -->
-    <div 
-    x-show="open && window.innerWidth < 890"
-    x-transition.opacity
-    class="fixed inset-0 bg-black bg-opacity-50 z-40"
-    x-on:click="open = false"
-    ></div>
+    <!-- Overlay -->
+    <div x-show="open && window.innerWidth < 890" x-transition.opacity class="fixed inset-0 bg-black bg-opacity-50 z-40"
+        x-on:click="open = false"></div>
 
     <aside x-show="open || window.innerWidth >= 890" x-on:resize.window="if (window.innerWidth >= 890) open = true"
         :class="{ 'hidden': !open && window.innerWidth < 640 }"
@@ -24,7 +20,7 @@
             </a>
         </div>
 
-        <nav class="flex-grow p-4">
+        <nav class="flex-grow p-4 flex flex-col gap-5">
             <x-sidebar-link :href="route('user-dashboard')" :active="request()->routeIs('user-dashboard')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="2">
@@ -33,15 +29,25 @@
                 </svg>
                 {{ __('Dashboard') }}
             </x-sidebar-link>
-            <x-sidebar-link :href="route('user-books')" :active="request()->routeIs('user-books')">
+            {{-- Borrowed Books --}}
+            <x-sidebar-link :href="route('borrowed-books')" :active="request()->routeIs('borrowed-books')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253" />
                 </svg>
-                {{ __('Books') }}
+                {{ __('Borrowed Books') }}
             </x-sidebar-link>
-            <x-sidebar-link :href="route('user-books')" :active="request()->routeIs('user-books')">
+            {{-- Returned books --}}
+            <x-sidebar-link :href="route('returned-books')" :active="request()->routeIs('returned-books')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253" />
+                </svg>
+                {{ __('Returned Books') }}
+            </x-sidebar-link>
+            <x-sidebar-link :href="route('my-penalties')" :active="request()->routeIs('user-books')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-red-500" fill="none"
                     viewBox="0 0 24 24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                     class="size-6">
@@ -49,7 +55,7 @@
                         d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                 </svg>
 
-                {{ __('Fines') }}
+                {{ __('My Penalties') }}
             </x-sidebar-link>
         </nav>
 
