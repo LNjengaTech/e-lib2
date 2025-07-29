@@ -41,8 +41,15 @@ Route::get('/exam-bank', function() {
 //User dashboard
 Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
 
-// User books
-Route::get('/user-books', [UserController::class, 'books'])->name('user-books');
+// Returned books
+Route::get('/returned-books', [UserController::class, 'myReturnedBooks'])->name('returned-books');
+
+// Borrowed books
+Route::get('/borrowed-books', [UserController::class, 'myBorrowedBooks'])->name('borrowed-books');
+
+//User penalties
+Route::get('/my-penalties', [UserController::class, 'myPenalties'])->name('my-penalties');
+
 
 // Authenticated User Routes (Student/General User)
 Route::middleware(['auth', 'verified'])->group(function () {

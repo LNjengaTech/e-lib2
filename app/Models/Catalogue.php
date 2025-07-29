@@ -8,6 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Catalogue extends Model
 {
     use HasFactory;
+
+        protected $fillable = [
+        'title',
+        'tags',
+        'image',
+        'author',
+        'category',
+        'description',
+        'total_copies',
+        'available_copies',
+        'published_year'
+    ];
+
+    
     public function scopeFilter($query, array $filters)
     {
         //search

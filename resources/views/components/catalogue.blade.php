@@ -7,7 +7,7 @@
 @endphp
 
 <x-home-sections class=" bg-light text-dark mt-10 rounded py-8 pb-8 max-1500px:px-3">
-    <div class="flex flex-wrap gap-5 gap-y-10 justify-start">
+    <div class="flex flex-wrap gap-5 gap-y-10 justify-start max-890px:justify-center">
         @foreach ($books as $book)
             <x-book-more :book="$book">
                 {{ $slot }}
