@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Public Routes
-Route::get('/', function() {
+Route::get('/', function () {
     return view('welcome');
 });
 
@@ -33,26 +33,28 @@ Route::get('/library-catalogue/category/{category}', [CatalogueController::class
 Route::get('/book/{id}', [CatalogueController::class, 'show']);
 
 //exam-bank
-Route::get('/exam-bank', function() {
+Route::get('/exam-bank', function () {
     return response('<p>Exams Coming Soon!!</p>');
 });
 
 //! USER -- Add them to the authenticated routes later
-//User dashboard
-Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
-
-// Returned books
-Route::get('/returned-books', [UserController::class, 'myReturnedBooks'])->name('returned-books');
-
-// Borrowed books
-Route::get('/borrowed-books', [UserController::class, 'myBorrowedBooks'])->name('borrowed-books');
-
-//User penalties
-Route::get('/my-penalties', [UserController::class, 'myPenalties'])->name('my-penalties');
 
 
 // Authenticated User Routes (Student/General User)
 Route::middleware(['auth', 'verified'])->group(function () {
+    //User dashboard
+    Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
+
+    // Returned books
+    Route::get('/returned-books', [UserController::class, 'myReturnedBooks'])->name('returned-books');
+
+    // Borrowed books
+    Route::get('/borrowed-books', [UserController::class, 'myBorrowedBooks'])->name('borrowed-books');
+
+    //User penalties
+    Route::get('/my-penalties', [UserController::class, 'myPenalties'])->name('my-penalties');
+
+
     // Breeze Profile Routes (keep these as they are)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -80,7 +82,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 });
 
 // Laravel Breeze Auth Routes (keep these as they are)
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 
 

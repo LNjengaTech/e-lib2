@@ -18,6 +18,14 @@ class AdminUserSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' => Hash::make('password123'),
+            'utype' => 'ADM'
+        ]);
+
+        User::create([
+            'name' => 'User',
+            'email' => 'user@example.com',
+            'password' => Hash::make('password123'),
+            'utype' => 'USR'
         ]);
     }
 }
