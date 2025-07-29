@@ -24,7 +24,9 @@ class AdminController extends Controller
     public function manageBooks()
     {
         // Fetch all books from the database
-        $books = Catalogue::all();
+        $books = Catalogue::latest()
+                ->filter(request(['search', 'tags', 'category']))
+                ->paginate(10);
         // Pass the fetched books to the view
         return view('admin-views.manage-books', compact('books'));
     }
