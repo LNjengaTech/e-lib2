@@ -31,7 +31,7 @@
                             tags: '',
                             image: '',
                             author: '',
-                            isbn: '',
+                            {{-- isbn: '', --}}
                             category: '',
                             description: '',
                             total_copies: '',
@@ -45,7 +45,7 @@
                             this.editForm.tags = book.tags;
                             this.editForm.image = book.image;
                             this.editForm.author = book.author;
-                            this.editForm.isbn = book.isbn;
+                            {{-- this.editForm.isbn = book.isbn; --}}
                             this.editForm.category = book.category;
                             this.editForm.description = book.description;
                             this.editForm.total_copies = book.total_copies;
@@ -72,9 +72,9 @@
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Author</th>
-                                        <th scope="col"
+                                        {{-- <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ISBN</th>
+                                            ISBN</th> --}}
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tags</th>
@@ -98,7 +98,7 @@
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->title }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->author }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">{{ $book->isbn }}</td>
+                                            {{-- <td class="px-6 py-4 whitespace-nowrap">{{ $book->isbn }}</td> --}}
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->tags }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->category }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->total_copies }}</td>
@@ -176,11 +176,11 @@
                                                                 required>
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label for="isbn"
+                                                            {{-- <label for="isbn"
                                                                 class="block text-sm font-medium text-gray-700">ISBN</label>
                                                             <input type="text" id="isbn" name="isbn"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                required> --}}
                                                         </div>
                                                         <div class="mb-4">
                                                             <label for="tags"
@@ -316,11 +316,11 @@
                                                                 required>
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label for="isbn"
+                                                            {{-- <label for="isbn"
                                                                 class="block text-sm font-medium text-gray-700">ISBN</label>
                                                             <input type="text" id="isbn" name="isbn"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                required> --}}
                                                         </div>
                                                         <div class="mb-4">
                                                             <label for="tags"

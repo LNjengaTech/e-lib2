@@ -51,7 +51,7 @@ class AdminController extends Controller
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
-                'isbn' => 'required|string|unique:books,isbn|max:255', // Ensure ISBN is unique
+               // 'isbn' => 'required|string|unique:books,isbn|max:255', // Ensure ISBN is unique
                 'category' => 'required|string|max:255', // New validation rule for category
                 'description' => 'required|string',
                 'total_copies' => 'required|integer|min:0',
@@ -87,7 +87,7 @@ class AdminController extends Controller
         try {
             // Validate the incoming request data
             $validatedData = $request->validate([
-                'isbn' => 'required|string|unique:books,isbn,' . $book->id . '|max:255', // Ensure ISBN is unique, except for the current book
+              //  'isbn' => 'required|string|unique:books,isbn,' . $book->id . '|max:255', // Ensure ISBN is unique, except for the current book
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
                 'category' => 'required|string|max:255', // New validation rule for category
