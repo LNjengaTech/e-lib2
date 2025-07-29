@@ -5,7 +5,7 @@
 @extends('layouts.home')
 @section('content')
     <x-home-sections class="bg-light text-dark pb-4 py-4 flex items-center justify-around max-600px:flex-col max-600px:gap-20 gap-[5%]">
-        <img src={{ asset('/images/book2.jpg') }} alt="book" title='{{ $book->title }} by {{ $book->author }}'
+        <img src={{ $book->image ? $book->image : 'https://ukombozilibrary.org/wp-content/uploads/2021/05/book-placeholder.jpg' }} alt="book" title='{{ $book->title }} by {{ $book->author }}'
             class="w-[300px] max-600px:w-[90%] h-[70%] object-fit rounded shadow shadow-dark">
         <article class="text-dark flex flex-col gap-4">
             <h2><span class="">Title: </span><span class="font-bold text-xl">{{ $book->title }}</span></h2>

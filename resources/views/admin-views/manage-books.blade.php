@@ -72,6 +72,9 @@
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Author</th>
+                                            <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Cover Image</th>
                                         {{-- <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             ISBN</th> --}}
@@ -98,6 +101,9 @@
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->title }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->author }}</td>
+                                             <td class="px-6 py-4 whitespace-nowrap">
+                                                <img src="{{ $book->image }}" alt="">
+                                             </td>
                                             {{-- <td class="px-6 py-4 whitespace-nowrap">{{ $book->isbn }}</td> --}}
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->tags }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->category }}</td>
@@ -306,28 +312,27 @@
                                                                 class="block text-sm font-medium text-gray-700">Title</label>
                                                             <input type="text" id="title" name="title"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
                                                         <div class="mb-4">
                                                             <label for="author"
                                                                 class="block text-sm font-medium text-gray-700">Author</label>
                                                             <input type="text" id="author" name="author"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
                                                         <div class="mb-4">
                                                             {{-- <label for="isbn"
                                                                 class="block text-sm font-medium text-gray-700">ISBN</label>
                                                             <input type="text" id="isbn" name="isbn"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required> --}}
+                                                                > --}}
                                                         </div>
                                                         <div class="mb-4">
                                                             <label for="tags"
                                                                 class="block text-sm font-medium text-gray-700">Tags</label>
                                                             <input type="text" id="tags" name="tags"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required
                                                                 placeholder="Comma seperated, eg., science, fiction, real">
                                                         </div>
                                                         <div class="mb-4">
@@ -335,14 +340,14 @@
                                                                 class="block text-sm font-medium text-gray-700">Description</label>
                                                             <textarea id="description" name="description"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required></textarea>
+                                                                ></textarea>
                                                         </div>
                                                         <div class="mb-4">
                                                             <label for="category"
                                                                 class="block text-sm font-medium text-gray-700">Category</label>
                                                             <input type="text" id="category" name="category"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                placeholder="e.g., Science, History, Fiction" required>
+                                                                placeholder="e.g., Science, History, Fiction" >
                                                         </div>
                                                         {{-- Total copies --}}
                                                         <div class="mb-4">
@@ -352,7 +357,7 @@
                                                             <input type="number" id="total_copies"
                                                                 name="total_copies"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
                                                         <div class="mb-4">
                                                             <label for="available_copies"
@@ -361,7 +366,7 @@
                                                             <input type="number" id="available_copies"
                                                                 name="available_copies" min="0"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
                                                         {{-- published year --}}
                                                         <div class="mb-4">
@@ -371,7 +376,7 @@
                                                             <input type="number" id="published_year"
                                                                 name="published_year"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
                                                         {{-- Image --}}
                                                         <div class="mb-4">
