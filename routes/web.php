@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\HomeController; // Import our new controllers
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
@@ -39,7 +39,7 @@ Route::get('/exam-bank', function() {
 
 //! USER -- Add them to the authenticated routes later
 //User dashboard
-Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
+//Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
 
 // Returned books
 Route::get('/returned-books', [UserController::class, 'myReturnedBooks'])->name('returned-books');
@@ -54,6 +54,7 @@ Route::get('/my-penalties', [UserController::class, 'myPenalties'])->name('my-pe
 // Authenticated User Routes (Student/General User)
 Route::middleware(['auth', 'verified'])->group(function () {
     // Breeze Profile Routes (keep these as they are)
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -62,6 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Admin Routes
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    // AdminController handles all admin-related actions
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/books', [AdminController::class, 'manageBooks'])->name('books');
     Route::post('/books', [AdminController::class, 'storeBook'])->name('books.store');
@@ -73,32 +75,18 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/loans', [AdminController::class, 'manageLoans'])->name('loans');
     Route::get('/reservations', [AdminController::class, 'manageReservations'])->name('reservations');
     Route::get('/fines', [AdminController::class, 'manageFines'])->name('fines');
+
+    // Members routes
     Route::get('/members', [AdminController::class, 'manageMembers'])->name('members');
+    Route::post('/members', [AdminController::class, 'storeMember'])->name('members.store');
+    Route::put('/members/{member}', [AdminController::class, 'updateMember'])->name('members.update');
+    Route::delete('/members/{member}', [AdminController::class, 'destroyMember'])->name('members.destroy');
+    Route::post('/members/import', [AdminController::class, 'importMembers'])->name('members.import'); // NEW: Route for importing members
 
     // Super Admin Specific Routes (will be further restricted later)
     Route::get('/add-librarian', [AdminController::class, 'addLibrarian'])->name('add-librarian');
+    Route::get('/create-student-account', [AdminController::class, 'createStudentAccount'])->name('create-student-account');
 });
 
 // Laravel Breeze Auth Routes (keep these as they are)
 require __DIR__.'/auth.php';
-
-
-
-// use App\Http\Controllers\ProfileController;
-// use Illuminate\Support\Facades\Route;
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-
-// require __DIR__.'/auth.php';
