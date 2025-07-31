@@ -39,7 +39,7 @@
             <form action="{{ route('logout') }}" method="POST" class="max-630px:hidden">
                 @csrf
                 <button type="submit"
-                    class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all ">
+                    class="bg-red-500 text-light p-2 rounded px-3 font-bold hover:bg-light/90 transition-all ">
                     <span>Logout</span>
                     <i class="fa-solid fa-door-open">
                     </i></button>
