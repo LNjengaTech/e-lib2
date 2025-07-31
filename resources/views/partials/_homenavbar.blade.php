@@ -18,18 +18,42 @@
                 class="mx-6 max-1000px:mx-2 max-630px:mx-1  cursor-pointer hover:bg-light hover:text-dark transition-all  rounded duration-300">
                 <a href="/exam-bank" class="p-1">Exam Bank</a>
             </li>
+
+            @auth
+                <hr class="bg-light/80 w-[1px] h-5 max-630px:hidden">
+                </hr>
+                <li
+                    class="mx-6 max-1000px:mx-2 max-630px:mx-1  cursor-pointer hover:bg-light hover:text-dark transition-all  rounded duration-300">
+                    <a href={{ Auth()->user()->utype === 'ADM' ? '/admin/dashboard' : 'user-dashboard' }} class="p-1">My
+                        Dashboard</a>
+                    {{--  $user->utype === 'ADM' ? '/admin/dashboard' : '/user-dashboard' --}}
+                </li>
+            @endauth
             <a href="{{ route('login') }}"
                 class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all 630px:hidden mt-2">
                 <span>Login</span>
                 <i class="fa-solid fa-book-open">
                 </i></a>
         </ul>
-        <section class="max-630px:hidden">
-            <a href="{{ route('login') }}" class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all ">
-                <span>Login</span>
-                <i class="fa-solid fa-book-open">
-                </i></a>
-        </section>
+        @auth
+            <form action="{{ route('logout') }}" method="POST" class="max-630px:hidden">
+                @csrf
+                <button type="submit"
+                    class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all ">
+                    <span>Logout</span>
+                    <i class="fa-solid fa-door-open">
+                    </i></button>
+            </form>
+        @else
+            <section class="max-630px:hidden">
+                <a href="{{ route('login') }}"
+                    class="bg-light text-dark p-2 rounded px-3 font-bold hover:bg-light/90 transition-all ">
+                    <span>Login</span>
+                    <i class="fa-solid fa-book-open">
+                    </i></a>
+            </section>
+        @endauth
+
         <section class="630px:hidden z-[100]">
             <i id="openSidebar" class="fa-solid fa-bars-staggered text-xl cursor-pointer"></i>
             <i id="closeSidebar" class="fa-solid fa-xmark text-2xl cursor-pointer hidden"></i>
@@ -37,23 +61,23 @@
     </nav>
     {{-- <script src="js/main.js"></script> --}}
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    const sidebar = document.getElementById("sidebar");
-    const openBtn = document.getElementById("openSidebar");
-    const closeBtn = document.getElementById("closeSidebar");
-    if (openBtn && closeBtn && sidebar) {
-        openBtn.addEventListener("click", function () {
-            sidebar.classList.remove("max-630px:hidden");
-            openBtn.classList.add("hidden");
-            closeBtn.classList.remove("hidden");
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebar = document.getElementById("sidebar");
+            const openBtn = document.getElementById("openSidebar");
+            const closeBtn = document.getElementById("closeSidebar");
+            if (openBtn && closeBtn && sidebar) {
+                openBtn.addEventListener("click", function() {
+                    sidebar.classList.remove("max-630px:hidden");
+                    openBtn.classList.add("hidden");
+                    closeBtn.classList.remove("hidden");
+                });
+                closeBtn.addEventListener("click", function() {
+                    sidebar.classList.add("max-630px:hidden");
+                    openBtn.classList.remove("hidden");
+                    closeBtn.classList.add("hidden");
+                });
+            }
         });
-        closeBtn.addEventListener("click", function () {
-            sidebar.classList.add("max-630px:hidden");
-            openBtn.classList.remove("hidden");
-            closeBtn.classList.add("hidden");
-        });
-    }
-});
     </script>
     </nav>
 </header>

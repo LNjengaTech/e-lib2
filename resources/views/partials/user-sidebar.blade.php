@@ -14,7 +14,7 @@
         <div class="p-6 border-b border-gray-700 flex items-center justify-between">
             <a href="{{ route('user-dashboard') }}" class="flex items-center space-x-3">
 
-                <span class="text-xl font-semibold">My Dashboard</span>
+                <span class="text-xl font-semibold font-bitcount">My Dashboard</span>
                 <a class="fa-solid fa-x cursor-pointer 890px:hidden" x-on:click="open=false "></a>
 
             </a>

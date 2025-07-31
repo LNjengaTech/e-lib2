@@ -2,9 +2,14 @@
     <article class="flex items-center text-sm">
         {{-- <a href="" class="fa-solid fa-user text-3xl"></a> --}}
         <div class="flex flex-col px-10 890px:px-1">
-            <span class="font-bold">{{ Auth()->user()->email}}</span>
-            <span>{{ Auth()->user()->name }}</span>
+            <span class="font-bold">{{ Auth()->user()->name}}</span>
+            <span>{{ Auth()->user()->email }}</span>
         </div>
+    </article>
+
+    <article class="flex gap-5">
+        <a href="/" class="font-bold hover:underline font-inter">Home</a>
+        <a href="/library-catalogue" class="font-bold hover:underline font-inter" >Catalogue</a>
     </article>
 
     <article class="flex items-center gap-3 text-sm">
