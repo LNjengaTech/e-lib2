@@ -4,8 +4,10 @@
 
 @extends('layouts.home')
 @section('content')
-    <x-home-sections class="bg-light text-dark pb-4 py-4 flex items-center justify-around max-600px:flex-col max-600px:gap-20 gap-[5%]">
-        <img src={{ asset('/images/book2.jpg') }} alt="book" title='{{ $book->title }} by {{ $book->author }}'
+    <x-home-sections
+        class="bg-light text-dark pb-4 py-4 flex items-center justify-around max-600px:flex-col max-600px:gap-20 gap-[5%]">
+        <img src={{ $book->image ? $book->image : 'https://ukombozilibrary.org/wp-content/uploads/2021/05/book-placeholder.jpg' }}
+            alt="book" title='{{ $book->title }} by {{ $book->author }}'
             class="w-[300px] max-600px:w-[90%] h-[70%] object-fit rounded shadow shadow-dark">
         <article class="text-dark flex flex-col gap-4">
             <h2><span class="">Title: </span><span class="font-bold text-xl">{{ $book->title }}</span></h2>
@@ -25,18 +27,19 @@
                 @endforeach
             </div>
 
-
-            @if ($book->available_copies)
-                <a href="/borrow/{{ $book->id }}"
-                    class="bg-dark text-light mt-5 block text-center p-2 rounded hover:text-light/90 hover:bg-dark/90 transition-all w-1/2 max-600px:w-full ">
-                    Borrow
-                </a>
-            @else
-                <button
-                    class="bg-dark/50 mt-5 cursor-not-allowed disabled:true block text-center p-2 rounded transition-all w-1/2 max-600px:w-full">Checked
-                    out
-                </button>
-            @endif
+            <div class="flex items-center justify-between gap-5 max-600px:flex-col">
+                @if ($book->available_copies)
+                    <a href="/borrow/{{ $book->id }}"
+                        class="bg-dark text-light mt-5 block text-center p-2 rounded hover:text-light/90 hover:bg-dark/90 transition-all w-1/2 max-600px:w-full ">
+                        Borrow
+                    </a>
+                @else
+                    <button
+                        class="bg-dark/50 mt-5 cursor-not-allowed disabled:true block text-center p-2 rounded transition-all w-1/2 max-600px:w-full">Checked
+                        out
+                    </button>
+                @endif
+            </div>
 
         </article>
 

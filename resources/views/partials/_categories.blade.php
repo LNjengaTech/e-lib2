@@ -16,47 +16,11 @@
             </div>
             <article id="cat-dropdown"
                 class="absolute mt-[36px] grid grid-cols-3 w-full min-w-[500px] z-10 bg-light p-3 rounded shadow shadow-dark/4 ">
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=new">New</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=engineering">Engineering</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=psychology">Psychology</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=maths">maths</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Science</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Health</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Physics</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Chemistry</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Biology</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Fiction</a>
-
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=new">New</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=engineering">Engineering</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=psychology">Psychology</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=maths">maths</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Science</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Health</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Physics</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Chemistry</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Biology</a>
-                <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
-                    href="/library-catalogue?category=science">Fiction</a>
+                @foreach($categories as $category)
+                    <a class="cat-all bg-light text-dark rounded p-1 px-2 transition-all hover:bg-dark/70 hover:text-light duration-200"
+                    href="/library-catalogue?category=new">{{ $category }}</a>
+                @endforeach
+                
             </article>
         </section>
         <a id="cat-0"

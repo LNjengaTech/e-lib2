@@ -30,10 +30,10 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        return redirect(
-            $user->utype === 'ADM' ? '/admin/dashboard' : '/dashboard'
-        );
 
+        return redirect(
+            $user->utype === 'ADM' ? '/admin/dashboard' : '/user-dashboard'
+        );
         //return redirect()->intended(route('user-dashboard', absolute: false));
     }
 

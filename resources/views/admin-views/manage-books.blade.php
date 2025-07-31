@@ -4,7 +4,15 @@
             {{ __('Manage Books') }}
         </h2>
     </x-slot>
-
+    {{-- 'title',
+        'tags',
+        'image',
+        'author',
+        'category',
+        'description',
+        'total_copies',
+        'available_copies',
+        'published_year' --}}
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -20,21 +28,29 @@
                         editForm: { // Data for the edit form
                             id: '',
                             title: '',
+                            tags: '',
+                            image: '',
                             author: '',
-                            isbn: '',
+                            {{-- isbn: '', --}}
                             category: '',
+                            description: '',
+                            total_copies: '',
                             available_copies: '',
-                            cover_image_url: ''
+                            published_year: '',
                         },
                         openEditModal(book) {
                             this.currentBook = book;
                             this.editForm.id = book.id;
                             this.editForm.title = book.title;
+                            this.editForm.tags = book.tags;
+                            this.editForm.image = book.image;
                             this.editForm.author = book.author;
-                            this.editForm.isbn = book.isbn;
+                            {{-- this.editForm.isbn = book.isbn; --}}
                             this.editForm.category = book.category;
+                            this.editForm.description = book.description;
+                            this.editForm.total_copies = book.total_copies;
                             this.editForm.available_copies = book.available_copies;
-                            this.editForm.cover_image_url = book.cover_image_url;
+                            this.editForm.published_year = book.published_year;
                             this.showEditBookModal = true;
                         },
                         openDeleteModal(book) {
@@ -56,12 +72,21 @@
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Author</th>
+                                            <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Cover Image</th>
+                                        {{-- <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            ISBN</th> --}}
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            ISBN</th>
+                                            Tags</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Category</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Total Copies</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Available Copies</th>
@@ -76,8 +101,13 @@
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->title }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->author }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">{{ $book->isbn }}</td>
+                                             <td class="px-6 py-4 whitespace-nowrap">
+                                                <img src="{{ $book->image }}" alt="">
+                                             </td>
+                                            {{-- <td class="px-6 py-4 whitespace-nowrap">{{ $book->isbn }}</td> --}}
+                                            <td class="px-6 py-4 whitespace-nowrap">{{ $book->tags }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->category }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">{{ $book->total_copies }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $book->available_copies }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <button @click="openEditModal({{ $book }})"
@@ -88,13 +118,15 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
+                                            <td colspan="6"
+                                                class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
                                                 No books found. Please add some!
                                             </td>
                                         </tr>
                                     @endforelse
                                 </tbody>
                             </table>
+                            <
                         </div>
 
                         {{-- Pagination Links --}}
@@ -150,11 +182,26 @@
                                                                 required>
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label for="isbn"
+                                                            {{-- <label for="isbn"
                                                                 class="block text-sm font-medium text-gray-700">ISBN</label>
                                                             <input type="text" id="isbn" name="isbn"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                required> --}}
+                                                        </div>
+                                                        <div class="mb-4">
+                                                            <label for="tags"
+                                                                class="block text-sm font-medium text-gray-700">Tags</label>
+                                                            <input type="text" id="tags" name="tags"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                required
+                                                                placeholder="Comma seperated, eg., science, fiction, real">
+                                                        </div>
+                                                        <div class="mb-4">
+                                                            <label for="description"
+                                                                class="block text-sm font-medium text-gray-700">Description</label>
+                                                            <textarea id="description" name="description"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                required></textarea>
                                                         </div>
                                                         <div class="mb-4">
                                                             <label for="category"
@@ -163,26 +210,46 @@
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                                 placeholder="e.g., Science, History, Fiction" required>
                                                         </div>
+                                                        {{-- Total copies --}}
+                                                        <div class="mb-4">
+                                                            <label for="total_copies"
+                                                                class="block text-sm font-medium text-gray-700">Total
+                                                                Copies</label>
+                                                            <input type="number" id="total_copies"
+                                                                name="total_copies"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                required>
+                                                        </div>
                                                         <div class="mb-4">
                                                             <label for="available_copies"
                                                                 class="block text-sm font-medium text-gray-700">Available
                                                                 Copies</label>
                                                             <input type="number" id="available_copies"
-                                                                name="available_copies" value="1" min="0"
+                                                                name="available_copies" min="0"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                                 required>
                                                         </div>
+                                                        {{-- published year --}}
+                                                        <div class="mb-4">
+                                                            <label for="published_year"
+                                                                class="block text-sm font-medium text-gray-700">Published
+                                                                Year</label>
+                                                            <input type="number" id="published_year"
+                                                                name="published_year"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                required>
+                                                        </div>
+                                                        {{-- Image --}}
                                                         <div class="mb-4">
                                                             <label for="cover_image_url"
                                                                 class="block text-sm font-medium text-gray-700">Cover Image
                                                                 URL (Optional)</label>
-                                                            <input type="url" id="cover_image_url"
-                                                                name="cover_image_url"
+                                                            <input type="url" id="cover_image_url" name="image"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                                         </div>
                                                         <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                                                             <button type="submit"
-                                                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white bg-gray-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
                                                                 Add Book
                                                             </button>
                                                             <button @click="showAddBookModal = false" type="button"
@@ -233,58 +300,98 @@
                                                         @csrf
                                                         @method('PUT') {{-- Use PUT method for updates --}}
                                                         <div class="mb-4">
-                                                            <label for="edit_title"
+                                                            <label for="title"
                                                                 class="block text-sm font-medium text-gray-700">Title</label>
-                                                            <input type="text" id="edit_title" name="title"
-                                                                x-model="editForm.title"
+                                                            <input type="text" id="title" name="title"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label for="edit_author"
+                                                            <label for="author"
                                                                 class="block text-sm font-medium text-gray-700">Author</label>
-                                                            <input type="text" id="edit_author" name="author"
-                                                                x-model="editForm.author"
+                                                            <input type="text" id="author" name="author"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label for="edit_isbn"
+                                                            {{-- <label for="isbn"
                                                                 class="block text-sm font-medium text-gray-700">ISBN</label>
-                                                            <input type="text" id="edit_isbn" name="isbn"
-                                                                x-model="editForm.isbn"
+                                                            <input type="text" id="isbn" name="isbn"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                > --}}
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label for="edit_category"
+                                                            <label for="tags"
+                                                                class="block text-sm font-medium text-gray-700">Tags</label>
+                                                            <input type="text" id="tags" name="tags"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                placeholder="Comma seperated, eg., science, fiction, real">
+                                                        </div>
+                                                        <div class="mb-4">
+                                                            <label for="description"
+                                                                class="block text-sm font-medium text-gray-700">Description</label>
+                                                            <textarea id="description" name="description"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                ></textarea>
+                                                        </div>
+                                                        <div class="mb-4">
+                                                            <label for="category"
                                                                 class="block text-sm font-medium text-gray-700">Category</label>
-                                                            <input type="text" id="edit_category" name="category"
-                                                                x-model="editForm.category"
+                                                            <input type="text" id="category" name="category"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                placeholder="e.g., Science, History, Fiction" >
+                                                        </div>
+                                                        {{-- Total copies --}}
+                                                        <div class="mb-4">
+                                                            <label for="total_copies"
+                                                                class="block text-sm font-medium text-gray-700">Total
+                                                                Copies</label>
+                                                            <input type="number" id="total_copies"
+                                                                name="total_copies"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                >
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label for="edit_available_copies"
+                                                            <label for="available_copies"
                                                                 class="block text-sm font-medium text-gray-700">Available
                                                                 Copies</label>
+                                                            <input type="number" id="available_copies"
+                                                                name="available_copies" min="0"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                >
+                                                        </div>
+                                                        {{-- published year --}}
+                                                        <div class="mb-4">
+                                                            <label for="published_year"
+                                                                class="block text-sm font-medium text-gray-700">Published
+                                                                Year</label>
+                                                            <input type="number" id="published_year"
+                                                                name="published_year"
                                                             <input type="number" id="edit_available_copies"
                                                                 name="available_copies" x-model="editForm.available_copies"
                                                                 min="0"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                                required>
+                                                                >
                                                         </div>
+                                                        {{-- Image --}}
                                                         <div class="mb-4">
+                                                            <label for="cover_image_url"
+                                                                class="block text-sm font-medium text-gray-700">Cover
+                                                                Image
                                                             <label for="edit_cover_image_url"
                                                                 class="block text-sm font-medium text-gray-700">Cover Image
                                                                 URL (Optional)</label>
+                                                            <input type="url" id="cover_image_url" name="image"
                                                             <input type="url" id="edit_cover_image_url"
                                                                 name="cover_image_url" x-model="editForm.cover_image_url"
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                                         </div>
+
+                                                        <div
+                                                            class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                                                         <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                                                             <button type="submit"
-                                                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm bg-gray-800">
                                                                 Update Book
                                                             </button>
                                                             <button @click="showEditBookModal = false" type="button"
