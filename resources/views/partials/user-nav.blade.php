@@ -2,8 +2,8 @@
     <article class="flex items-center text-sm">
         {{-- <a href="" class="fa-solid fa-user text-3xl"></a> --}}
         <div class="flex flex-col px-10 890px:px-1">
-            <span class="font-bold">Your Name</span>
-            <span>User</span>
+            <span class="font-bold">{{ Auth()->user()->name }}</span>
+            <span>{{ Auth()->user()->name }}</span>
         </div>
     </article>
 
