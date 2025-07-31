@@ -14,25 +14,51 @@ class ReservationController extends Controller
     //Borrow book
     public function borrow(Catalogue $book)
     {
+        $userId = Auth::id();
 
-        //Check if user has already reserved book
-        $existing = Reservation::where('user_id', Auth::id())->where('catalogue_id', $book->id)
+        $existingReservation = Reservation::where('user_id', $userId)
+            ->where('catalogue_id', $book->id)
+            ->whereIn('status', ['cancelled', 'expired']) // Reuse only cancelled or expired
+            ->first();
+
+        if ($existingReservation) {
+            $existingReservation->update([
+                'status' => 'pending',
+                'reserved_at' => now(),
+                'expires_at' => now()->addHours(24),
+            ]);
+        } else {
+            Reservation::create([
+                'user_id' => $userId,
+                'catalogue_id' => $book->id,
+                'reserved_at' => now(),
+                'expires_at' => now()->addHours(24),
+                'status' => 'pending',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Book reserved successfully!');
+    }
+
+    //Allow user to cancel reservation
+    public function cancel($bookId)
+    {
+        $reservation = Reservation::where('user_id', Auth::id())
+            ->where('catalogue_id', $bookId)
             ->where('status', 'pending')
             ->first();
 
-        //Create reservation
-        Reservation::create([
-            'user_id' => Auth::id(),
-            'catalogue_id' => $book->id,
-            'reserved_at' => now(),
-            'expires_at' => now()->addDay(), //reservation expires after 24 hours
-            'status' => 'pending'
-        ]);
-
-        if ($existing) {
-            return redirect()->back()->with('error', 'You already have a pending reservation for this book.');
+        if ($reservation->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
         }
 
-        return redirect()->back()->with('success', 'Book reserved successfully. Please pick it up within 24 hours!');
+        if ($reservation) {
+            $reservation->status = 'cancelled';
+            $reservation->save();
+        }
+
+        $reservation->update(['status' => 'cancelled']);
+
+        return redirect()->back()->with('success', 'Reservation cancelled.');
     }
 }

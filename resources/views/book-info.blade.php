@@ -37,10 +37,20 @@
             <div class="flex items-center justify-between gap-5 max-600px:flex-col">
                 @if ($book->available_copies)
                     @if ($isReserved)
-                        <button disabled
-                            class="bg-gray-500 text-white mt-5 block text-center p-2 rounded w-[200px] max-600px:w-full cursor-not-allowed">
-                            Reserved
-                        </button>
+                        <div class="flex gap-4 max-600px:flex-col">
+                            <button disabled
+                                class="bg-gray-500 text-white mt-5 block text-center p-2 rounded w-[200px] max-600px:w-full cursor-not-allowed">
+                                Reserved
+                            </button>
+                            <form action="/cancel-reservation/{{ $book->id }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                    class="bg-red-600 text-white mt-5 block text-center p-2 rounded hover:bg-red-700 transition-all w-[200px] max-600px:w-full">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
                     @else
                         <form action="/borrow/{{ $book->id }}" method="POST">
                             @csrf

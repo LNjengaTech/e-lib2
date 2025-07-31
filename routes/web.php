@@ -62,8 +62,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    //Borrow book
+    //Borrow book -- Reserve
     Route::post('/borrow/{book}', [ReservationController::class, 'borrow']);
+
+    //Cancel Reservation --User
+    Route::patch('/cancel-reservation/{book}', [ReservationController::class, 'cancel'])->name('reservation.cancel');
+
 });
 
 
