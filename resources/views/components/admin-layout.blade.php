@@ -52,14 +52,28 @@
 </head>
 
 <body class="font-sans antialiased bg-gray-100 text-gray-900">
-    <div class="min-h-screen flex">
+    <!-- Main wrapper for the entire layout, controlled by Alpine.js for sidebar toggle -->
+    <div class="min-h-screen flex" x-data="{ sidebarOpen: true }">
+        <!-- sidebarOpen is now false by default for all screens -->
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto">
-            <div class="p-6 border-b border-gray-700 flex justify-between">
-                <a href="/"><img src="/favicon.ico" alt="home" title="home" class="w-[40px] h-[40px] object-cover rounded"></a>
+        <!-- The sidebar is now always controlled by sidebarOpen, overlaying content when open. -->
+        <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto
+                      fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out"
+            :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
+            <div class="p-6 border-b border-gray-700 flex items-center justify-between">
+                <a href="/"><img src="/favicon.ico" alt="home" title="home"
+                        class="w-[40px] h-[40px] object-cover rounded"></a>
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
                     <span class="text-xl font-semibold">Library Admin</span>
                 </a>
+                <!-- Close button for sidebar - now always visible when sidebar is open -->
+                <button @click="sidebarOpen = false"
+                    class="flex items-center justify-center text-gray-300 hover:text-white rounded-md focus:outline-none hover:bg-gray-700 transition">
+                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
             </div>
 
             <nav class="flex-grow p-4 space-y-2">
@@ -132,7 +146,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-sidebar-nav-link :href="route('logout')" onclick="event.preventDefault();
-                                    this.closest('form').submit();">
+                                        this.closest('form').submit();">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -145,17 +159,28 @@
         </aside>
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col">
+        <!-- The main content area now shifts based on sidebarOpen state for all screen sizes -->
+        <div class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+            :class="{ 'ml-64': sidebarOpen, 'ml-0': !sidebarOpen }">
             <!-- Top Bar -->
             <header class="bg-white shadow-sm py-4 px-6 flex items-center justify-between">
                 <div class="flex items-center">
+                    <!-- Hamburger menu button - hidden when sidebar is open -->
+                    <button x-show="!sidebarOpen" @click="sidebarOpen = true"
+                        class="p-3 w-12 h-12 flex items-center justify-center text-gray-700 hover:text-gray-900 focus:outline-none">
+                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                         {{ $header ?? 'Admin Panel' }}
                     </h2>
                     <!-- Search Bar (Placeholder) -->
-                    <form method="GET" class="ml-6 relative">
+                    <form method="GET" class="ml-6 relative hidden sm:block">
                         <input type="text" placeholder="Search..."
-                            class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="search">
+                            class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            name="search">
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

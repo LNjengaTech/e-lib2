@@ -9,7 +9,7 @@
             <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between border-l-4 border-blue-500">
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Total Books</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-1">1,250</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1">@isset($totalBooks){{ $totalBooks }}@else 0 @endisset</p>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="1">
@@ -21,7 +21,7 @@
                 class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between border-l-4 border-green-500">
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Total Members</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-1">850</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1">@isset($totalMembers){{ $totalMembers }}@else 0 @endisset</p>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="1">
@@ -33,7 +33,7 @@
                 class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between border-l-4 border-yellow-500">
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Books Borrowed</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-1">320</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1">@isset($booksBorrowed){{ $booksBorrowed }}@else 0 @endisset</p>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-400" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
@@ -44,7 +44,7 @@
             <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between border-l-4 border-red-500">
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Overdue Books</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-1">18</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1">@isset($overdueBooks){{ $overdueBooks }}@else 0 @endisset</p>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="1">

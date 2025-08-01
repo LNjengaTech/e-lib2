@@ -6,8 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Catalogue;
 use App\Models\User;
 use App\Models\Reservation;
-use App\Models\Loan; // NEW: Import the Loan model
-use App\Models\Fine; // NEW: Import the Fine model
+use App\Models\Loan;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -23,7 +22,16 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        return view('admin-views.dashboard');
+        $totalBooks = Catalogue::count();
+        $totalMembers = User::count();
+        $booksBorrowed = Loan::where('returned_at', null)->count();
+        $overdueBooks = Loan::where('due_date', '<', now())->where('returned_at', null)->count();
+        return view('admin-views.dashboard', [
+            'totalBooks' => $totalBooks,
+            'totalMembers' => $totalMembers,
+            'booksBorrowed' => $booksBorrowed,
+            'overdueBooks' => $overdueBooks,
+        ]);
     }
 
     /**
