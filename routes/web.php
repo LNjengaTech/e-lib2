@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ReservationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,9 +56,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/book/{book}/borrow', [CatalogueController::class, 'borrowBook'])->name('book.borrow');
 
     // Breeze Profile Routes (keep these as they are)
+    Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //Borrow book -- Reserve
+    Route::post('/borrow/{book}', [ReservationController::class, 'borrow']);
+
+    //Cancel Reservation --User
+    Route::patch('/cancel-reservation/{book}', [ReservationController::class, 'cancel'])->name('reservation.cancel');
+
 });
 
 

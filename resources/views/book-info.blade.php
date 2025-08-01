@@ -1,5 +1,12 @@
 @php
     $tagsArray = explode(',', $book->tags);
+
+    //check if book is already reserved by user
+    $isReserved = \App\Models\Reservation::where('user_id', auth()->id())
+        ->where('catalogue_id', $book->id)
+        ->where('status', 'pending')
+        ->whereNotIn('status', ['cancelled', 'expired'])
+        ->exists();
 @endphp
 
 @extends('layouts.home')
@@ -28,14 +35,31 @@
             </div>
 
             <div class="flex items-center justify-between gap-5 max-600px:flex-col">
-                @if ($book->available_copies > 0) {{-- Ensure available_copies is strictly greater than 0 --}}
-                    <form action="{{ route('book.borrow', $book) }}" method="POST" class="w-1/2 max-600px:w-full">
-                        @csrf
-                        <button type="submit"
-                            class="bg-dark text-light mt-5 block w-full text-center p-2 rounded hover:text-light/90 hover:bg-dark/90 transition-all">
-                            Borrow
-                        </button>
-                    </form>
+                @if ($book->available_copies)
+                    @if ($isReserved)
+                        <div class="flex gap-4 max-600px:flex-col">
+                            <button disabled
+                                class="bg-gray-500 text-white mt-5 block text-center p-2 rounded w-[200px] max-600px:w-full cursor-not-allowed">
+                                Reserved
+                            </button>
+                            <form action="/cancel-reservation/{{ $book->id }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                    class="bg-red-600 text-white mt-5 block text-center p-2 rounded hover:bg-red-700 transition-all w-[200px] max-600px:w-full">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <form action="/borrow/{{ $book->id }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="bg-dark text-light mt-5 block text-center p-2 rounded hover:text-light/90 hover:bg-dark/90 transition-all w-[200px] max-600px:w-full ">
+                                Borrow
+                            </button>
+                        </form>
+                    @endif
                 @else
                     <button
                         class="bg-dark/50 mt-5 cursor-not-allowed disabled:true block text-center p-2 rounded transition-all w-1/2 max-600px:w-full">

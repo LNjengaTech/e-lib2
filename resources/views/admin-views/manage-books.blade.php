@@ -126,7 +126,6 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            <
                         </div>
 
                         {{-- Pagination Links --}}

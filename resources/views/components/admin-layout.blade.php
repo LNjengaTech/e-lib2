@@ -55,9 +55,9 @@
     <div class="min-h-screen flex">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto">
-            <div class="p-6 border-b border-gray-700">
+            <div class="p-6 border-b border-gray-700 flex justify-between">
+                <a href="/"><img src="/favicon.ico" alt="home" title="home" class="w-[40px] h-[40px] object-cover rounded"></a>
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
-                    <x-application-logo class="block h-9 w-auto fill-current text-white" />
                     <span class="text-xl font-semibold">Library Admin</span>
                 </a>
             </div>

@@ -51,9 +51,14 @@ class Reservation extends Model
     /**
      * Get the book that the reservation is for.
      */
-    public function book(): BelongsTo
+    // public function book(): BelongsTo
+    // {
+    //     // Assuming your book model is named Catalogue
+    //     return $this->belongsTo(Catalogue::class, 'catalogue_id');
+    // }
+
+    public function catalogue(): BelongsTo
     {
-        // Assuming your book model is named Catalogue
-        return $this->belongsTo(Catalogue::class, 'catalogue_id');
-    }
+        return $this->belongsTo(Catalogue::class);
+    }             
 }
