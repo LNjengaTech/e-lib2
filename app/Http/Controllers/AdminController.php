@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Catalogue;
 use App\Models\User;
-use App\Models\Reservation; // NEW: Import the Reservation model
-use App\Models\Loan; // NEW: Will be used for creating loans later
+use App\Models\Reservation;
+use App\Models\Loan; // NEW: Import the Loan model
+use App\Models\Fine; // NEW: Import the Fine model
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon; // NEW: Import Carbon for date/time manipulation
-use Illuminate\Support\Facades\Log; // NEW: Import Log for error logging
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -29,14 +30,12 @@ class AdminController extends Controller
      * Display the manage books page.
      * Accessible by authenticated librarians/admins.
      */
-    public function manageBooks(Request $request) // Added Request for filtering
+    public function manageBooks(Request $request)
     {
-        // Fetch all books from the database with filtering and pagination
         $books = Catalogue::latest()
-            ->filter($request->only(['search', 'tags', 'category'])) // Assuming filter method in Catalogue model
+            ->filter($request->only(['search', 'tags', 'category']))
             ->paginate(10);
 
-        // Pass the fetched books to the view
         return view('admin-views.manage-books', compact('books'));
     }
 
@@ -47,24 +46,21 @@ class AdminController extends Controller
     public function storeBook(Request $request)
     {
         try {
-            // Validate the incoming request data
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
-                'isbn' => 'required|string|unique:catalogue,isbn|max:255', // Corrected table name to 'catalogue'
+                'isbn' => 'required|string|unique:catalogue,isbn|max:255',
                 'category' => 'required|string|max:255',
                 'description' => 'required|string',
                 'total_copies' => 'required|integer|min:0',
-                'available_copies' => 'required|integer|min:0|lte:total_copies', // available_copies cannot exceed total_copies
-                'published_year' => 'required|integer|min:1000|max:' . (date('Y') + 1), // Sensible range for years
-                'tags' => 'required|string|max:255', // Ensure tags is a string
+                'available_copies' => 'required|integer|min:0|lte:total_copies',
+                'published_year' => 'required|integer|min:1000|max:' . (date('Y') + 1),
+                'tags' => 'required|string|max:255',
                 'image' => 'nullable|url|max:2048',
             ]);
 
-            // Create a new Book instance and fill it with validated data
             Catalogue::create($validatedData);
 
-            // Redirect back to the manage books page with a success message
             return redirect()->route('admin.books')->with('success', 'Book added successfully!');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
@@ -85,13 +81,13 @@ class AdminController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'isbn' => 'required|string|unique:catalogue,isbn,' . $book->id . '|max:255', // Corrected table name to 'catalogue'
+                'isbn' => 'required|string|unique:catalogue,isbn,' . $book->id . '|max:255',
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
                 'category' => 'required|string|max:255',
                 'description' => 'required|string',
                 'total_copies' => 'required|integer|min:0',
-                'available_copies' => 'required|integer|min:0|lte:total_copies', // available_copies cannot exceed total_copies
+                'available_copies' => 'required|integer|min:0|lte:total_copies',
                 'published_year' => 'required|integer|min:1000|max:' . (date('Y') + 1),
                 'tags' => 'required|string|max:255',
                 'image' => 'nullable|url|max:2048',
@@ -116,19 +112,23 @@ class AdminController extends Controller
      */
     public function destroyBook(Catalogue $book)
     {
+        DB::beginTransaction();
         try {
             // Prevent deletion if there are active loans or pending reservations for this book
             if ($book->reservations()->where('status', 'pending')->exists()) {
+                DB::rollBack();
                 return redirect()->back()->with('error', 'Cannot delete book: There are pending reservations for this book.');
             }
-            // Assuming you'll have a Loans model later
-            // if ($book->loans()->whereNull('returned_at')->exists()) {
-            //     return redirect()->back()->with('error', 'Cannot delete book: There are active loans for this book.');
-            // }
+            if ($book->loans()->whereNull('returned_at')->exists()) { // Check for active loans
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Cannot delete book: There are active loans for this book.');
+            }
 
             $book->delete();
+            DB::commit();
             return redirect()->route('admin.books')->with('success', 'Book deleted successfully!');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error deleting book: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while deleting the book.')->withInput();
         }
@@ -141,9 +141,62 @@ class AdminController extends Controller
      */
     public function manageLoans()
     {
-        // This will be updated later when we implement the Loan model
-        return view('admin-views.manage-loans');
+        // Fetch all loans with associated user and book details
+        // Order by borrowed_at (most recent first) and then by returned_at (nulls last for active loans)
+        $loans = Loan::with(['user', 'book'])
+                     ->orderBy('returned_at') // Nulls first, so active loans appear at top
+                     ->latest('borrowed_at') // Then by most recent borrowed date
+                     ->paginate(10);
+
+        return view('admin-views.manage-loans', compact('loans'));
     }
+
+    /**
+     * Handle marking a loan as returned.
+     *
+     * @param \App\Models\Loan $loan
+     * @return \Illuminate\Http\Response
+     */
+    public function markLoanReturned(Loan $loan)
+    {
+        DB::beginTransaction();
+        try {
+            // Only mark as returned if the loan is currently 'borrowed'
+            if ($loan->status !== 'borrowed') {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'This loan is not in a borrowed state and cannot be marked as returned.');
+            }
+
+            // Update the loan record
+            $loan->update([
+                'returned_at' => Carbon::now(),
+                'status' => 'returned',
+            ]);
+
+            // Increment the available copies for the book
+            $book = $loan->book;
+            if ($book) {
+                $book->increment('available_copies');
+            }
+
+            // Optional: Check for overdue fines associated with this loan and mark them as paid if they were daily fines
+            // This logic can be expanded based on your specific fine policy (e.g., only auto-generated fines are cleared)
+            // For now, we assume fines are managed separately or manually marked paid.
+            // If you want to automatically mark related fines as paid upon return, you'd add that logic here.
+            // Example:
+            // $loan->fines()->where('status', 'outstanding')->update(['status' => 'paid', 'paid_at' => Carbon::now()]);
+            // And then decrement user's fee_balance for these fines.
+
+            DB::commit();
+            return redirect()->route('admin.loans')->with('success', 'Book "' . ($loan->book->title ?? 'N/A') . '" returned successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error marking loan returned: ' . $e->getMessage(), ['loan_id' => $loan->id]);
+            return redirect()->back()->with('error', 'An error occurred while marking the book as returned. Please try again.');
+        }
+    }
+
 
     /**
      * Display the manage reservations page.
@@ -151,12 +204,10 @@ class AdminController extends Controller
      */
     public function manageReservations(Request $request)
     {
-        // Fetch all reservations with associated user and book details
-        // Only show 'pending' and 'confirmed_pickup' reservations for active management
         $reservations = Reservation::with(['user', 'catalogue'])
                                 ->whereIn('status', ['pending', 'confirmed_pickup'])
-                                ->latest('reserved_at') // Order by most recent reservations first
-                                ->paginate(10); // Paginate the results
+                                ->latest('reserved_at')
+                                ->paginate(10);
 
         return view('admin-views.manage-reservations', compact('reservations'));
     }
@@ -170,43 +221,34 @@ class AdminController extends Controller
      */
     public function confirmReservationPickup(Reservation $reservation)
     {
-        // Start a database transaction
         DB::beginTransaction();
-
         try {
-            // Only confirm if the reservation is in 'pending' status
             if ($reservation->status !== 'pending') {
                 DB::rollBack();
                 return redirect()->back()->with('error', 'This reservation is not in a pending state and cannot be confirmed.');
             }
 
-            // Check if the user has outstanding fee balances
             if ($reservation->user->fee_balance > 0) {
                 DB::rollBack();
                 return redirect()->back()->with('error', 'Cannot confirm pickup: The student has an outstanding fee balance. Please clear their balance first.');
             }
 
-            // Create a new Loan record (assuming Loan model exists and is imported)
-            // This part will be fully implemented when we work on the Loan model
-            // For now, we'll just update the reservation status.
-            /*
+            // Create a new Loan record
             Loan::create([
                 'user_id' => $reservation->user_id,
                 'catalogue_id' => $reservation->catalogue_id,
                 'borrowed_at' => Carbon::now(),
-                'due_date' => Carbon::now()->addDays(14), // Example: 14 days loan period
+                'due_date' => Carbon::now()->addDays(14), // Default loan period: 14 days
                 'status' => 'borrowed',
             ]);
-            */
 
             // Update the reservation status to 'confirmed_pickup'
             $reservation->update(['status' => 'confirmed_pickup']);
 
-            // No change to available_copies here, as it was decremented on reservation creation.
-            // When the book is returned (via Loan management), available_copies will be incremented.
+            // available_copies was decremented on reservation creation, no change needed here.
 
             DB::commit();
-            return redirect()->route('admin.reservations')->with('success', 'Reservation confirmed and book marked as picked up.');
+            return redirect()->route('admin.reservations')->with('success', 'Reservation confirmed and book marked as picked up. Loan created.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -223,21 +265,16 @@ class AdminController extends Controller
      */
     public function cancelReservation(Reservation $reservation)
     {
-        // Start a database transaction
         DB::beginTransaction();
-
         try {
-            // Only cancel if the reservation is in 'pending' status
             if ($reservation->status !== 'pending') {
                 DB::rollBack();
                 return redirect()->back()->with('error', 'This reservation cannot be cancelled as it is not in a pending state.');
             }
 
-            // Update the reservation status to 'cancelled'
             $reservation->update(['status' => 'cancelled']);
 
-            // Increment the available_copies for the book
-            $book = $reservation->book; // Get the associated book
+            $book = $reservation->book;
             if ($book) {
                 $book->increment('available_copies');
             }
@@ -259,8 +296,87 @@ class AdminController extends Controller
      */
     public function manageFines()
     {
-        return view('admin-views.manage-fines');
+        // Fetch all fines with associated user and loan details
+        $fines = Fine::with(['user', 'loan.book']) // Eager load user and loan (and book through loan)
+                     ->latest('issued_at') // Order by most recent fines first
+                     ->paginate(10);
+
+        return view('admin-views.manage-fines', compact('fines'));
     }
+
+    /**
+     * Handle marking a fine as paid.
+     *
+     * @param \App\Models\Fine $fine
+     * @return \Illuminate\Http\Response
+     */
+    public function markFinePaid(Fine $fine)
+    {
+        DB::beginTransaction();
+        try {
+            if ($fine->status !== 'outstanding') {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'This fine is not outstanding and cannot be marked as paid.');
+            }
+
+            // Update the fine status
+            $fine->update([
+                'paid_at' => Carbon::now(),
+                'status' => 'paid',
+            ]);
+
+            // Decrement the user's fee_balance
+            $user = $fine->user;
+            if ($user) {
+                $user->decrement('fee_balance', $fine->amount);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.fines')->with('success', 'Fine of $' . number_format($fine->amount, 2) . ' for ' . ($fine->user->name ?? 'N/A') . ' marked as paid.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error marking fine paid: ' . $e->getMessage(), ['fine_id' => $fine->id]);
+            return redirect()->back()->with('error', 'An error occurred while marking the fine as paid. Please try again.');
+        }
+    }
+
+    /**
+     * Handle waiving a fine.
+     *
+     * @param \App\Models\Fine $fine
+     * @return \Illuminate\Http\Response
+     */
+    public function waiveFine(Fine $fine)
+    {
+        DB::beginTransaction();
+        try {
+            if ($fine->status !== 'outstanding') {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'This fine is not outstanding and cannot be waived.');
+            }
+
+            // Update the fine status
+            $fine->update([
+                'status' => 'waived',
+            ]);
+
+            // Decrement the user's fee_balance as it's no longer owed
+            $user = $fine->user;
+            if ($user) {
+                $user->decrement('fee_balance', $fine->amount);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.fines')->with('success', 'Fine of $' . number_format($fine->amount, 2) . ' for ' . ($fine->user->name ?? 'N/A') . ' waived successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error waiving fine: ' . $e->getMessage(), ['fine_id' => $fine->id]);
+            return redirect()->back()->with('error', 'An error occurred while waiving the fine. Please try again.');
+        }
+    }
+
 
     /**
      * Display the manage members page.
@@ -268,13 +384,9 @@ class AdminController extends Controller
      */
     public function manageMembers(Request $request)
     {
-        // Get search query from request
         $search = $request->input('search');
-
-        // Fetch users with 'USR' utype (students)
         $query = User::where('utype', 'USR');
 
-        // Apply search filter if a query is present
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
@@ -283,7 +395,7 @@ class AdminController extends Controller
             });
         }
 
-        $members = $query->paginate(10); // Paginate the results
+        $members = $query->paginate(10);
 
         return view('admin-views.manage-members', compact('members', 'search'));
     }
@@ -295,7 +407,6 @@ class AdminController extends Controller
     public function storeMember(Request $request)
     {
         try {
-            // Validate the incoming request data
             $validatedData = $request->validate([
                 'reg_number' => 'required|string|max:255|unique:users,reg_number',
                 'full_name' => 'required|string|max:255',
@@ -380,24 +491,28 @@ class AdminController extends Controller
      */
     public function destroyMember(User $member)
     {
+        DB::beginTransaction();
         try {
             if ($member->utype !== 'USR') {
+                DB::rollBack();
                 return redirect()->back()->with('error', 'Only student members can be deleted from this page.');
             }
 
             // Prevent deletion if the member has active loans or pending reservations
             if ($member->reservations()->where('status', 'pending')->exists()) {
+                DB::rollBack();
                 return redirect()->back()->with('error', 'Cannot delete member: They have pending book reservations.');
             }
-            // Assuming you'll have a Loan model later
-            // if ($member->loans()->whereNull('returned_at')->exists()) {
-            //     return redirect()->back()->with('error', 'Cannot delete member: They have active book loans.');
-            // }
-
+            if ($member->loans()->whereNull('returned_at')->exists()) { // Check for active loans
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Cannot delete member: They have active book loans.');
+            }
 
             $member->delete();
+            DB::commit();
             return redirect()->route('admin.members')->with('success', 'Member deleted successfully!');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error deleting member: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while deleting the member: ' . $e->getMessage());
         }

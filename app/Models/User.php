@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany; // Ensure this is imported
 
 class User extends Authenticatable
 {
@@ -21,10 +20,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'utype', // Your existing user type column
+        'utype',
         'password',
-        'reg_number', // NEW: Add reg_number to fillable
-        'fee_balance', // NEW: Add fee_balance to fillable
+        'reg_number',
+        'fee_balance',
     ];
 
     /**
@@ -47,25 +46,31 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'fee_balance' => 'decimal:2', // NEW: Cast fee_balance to decimal
+            'fee_balance' => 'decimal:2',
         ];
     }
 
-    //Add the relationship for reservations
     /**
      * Get the reservations for the user.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    // This method defines a one-to-many relationship between User and Reservation
-    // It allows you to access all reservations made by a user
-    public function reservations(): HasMany{
+    public function reservations(): HasMany
+    {
         return $this->hasMany(Reservation::class);
     }
 
+    /**
+     * Get the loans for the user.
+     */
     public function loans(): HasMany
     {
         return $this->hasMany(Loan::class);
     }
 
+    /**
+     * Get the fines for the user.
+     */
+    public function fines(): HasMany
+    {
+        return $this->hasMany(Fine::class);
+    }
 }
-

@@ -249,7 +249,7 @@
             x-transition:leave-start="toast-leave-from" x-transition:leave-end="toast-leave-to"
             class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden"
             :class="{
-                'border-l-4 border-green-500': type === 'success',
+                ' bg-green-100 border border-green-400 text-green-700': type === 'success',
                 'border-l-4 border-red-500': type === 'error'
             }">
             <div class="p-4">

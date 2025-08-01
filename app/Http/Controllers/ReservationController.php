@@ -55,7 +55,7 @@ class ReservationController extends Controller
 
          // Commit the transaction
           DB::commit();
-        return redirect()->back()->with('success', 'Book reserved successfully!');
+        return redirect()->back()->with('success', 'Book reserved successfully! Please pick it up within 24 hours.');
     }
 
     //Allow user to cancel reservation

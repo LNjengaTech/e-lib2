@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // NEW: Import BelongsTo
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany; // Ensure this is imported
 
 class Loan extends Model
 {
@@ -15,7 +16,7 @@ class Loan extends Model
      *
      * @var string
      */
-    protected $table = 'loans'; // Explicitly define the table name
+    protected $table = 'loans';
 
     /**
      * The attributes that are mass assignable.
@@ -39,7 +40,7 @@ class Loan extends Model
     protected $casts = [
         'borrowed_at' => 'datetime',
         'due_date' => 'datetime',
-        'returned_at' => 'datetime', // Nullable datetime
+        'returned_at' => 'datetime',
     ];
 
     /**
@@ -56,5 +57,13 @@ class Loan extends Model
     public function book(): BelongsTo
     {
         return $this->belongsTo(Catalogue::class, 'catalogue_id');
+    }
+
+    /**
+     * Get the fines associated with the loan.
+     */
+    public function fines(): HasMany
+    {
+        return $this->hasMany(Fine::class);
     }
 }

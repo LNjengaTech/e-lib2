@@ -95,6 +95,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::delete('/members/{member}', [AdminController::class, 'destroyMember'])->name('members.destroy');
     Route::post('/members/import', [AdminController::class, 'importMembers'])->name('members.import');
 
+    // Loan Management Routes
+    Route::get('/loans', [AdminController::class, 'manageLoans'])->name('loans');
+    Route::put('/loans/{loan}/return', [AdminController::class, 'markLoanReturned'])->name('loans.return'); // Mark Loan Returned
+
+    // Fine Management Routes
+    Route::get('/fines', [AdminController::class, 'manageFines'])->name('fines');
+    Route::put('/fines/{fine}/pay', [AdminController::class, 'markFinePaid'])->name('fines.pay'); // NEW: Mark Fine Paid
+    Route::put('/fines/{fine}/waive', [AdminController::class, 'waiveFine'])->name('fines.waive'); // NEW: Waive Fine
+
+
     // Super Admin Specific Routes (will be further restricted later)
     Route::get('/add-librarian', [AdminController::class, 'addLibrarian'])->name('add-librarian');
     Route::get('/create-student-account', [AdminController::class, 'createStudentAccount'])->name('create-student-account');
