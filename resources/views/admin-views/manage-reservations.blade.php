@@ -73,7 +73,7 @@
                                                     {{ $reservation->user->reg_number ?? 'N/A' }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ $reservation->book->title ?? 'N/A' }}
+                                                {{ $reservation->catalogue->title ?? 'N/A' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 {{ $reservation->reserved_at->format('Y-m-d H:i') }}
