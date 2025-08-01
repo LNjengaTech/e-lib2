@@ -46,6 +46,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Returned books
     Route::get('/returned-books', [UserController::class, 'myReturnedBooks'])->name('returned-books');
 
+    // Reserved books
+    Route::get('/reserved-books', [UserController::class, 'myReservedBooks'])->name('reserved-books');
+
     // Borrowed books
     Route::get('/borrowed-books', [UserController::class, 'myBorrowedBooks'])->name('borrowed-books');
 

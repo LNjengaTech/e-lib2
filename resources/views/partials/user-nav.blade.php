@@ -36,12 +36,12 @@
             // if (hours < 10) {
             //     hours = "0" + hours;
             // }
-            if (minutes < 10) {
-                minutes = "0" + minutes;
-            }
-            if (get_date < 10) {
-                get_date = "0" + get_date;
-            }
+            // if (minutes < 10) {
+            //     minutes = "0" + minutes;
+            // }
+            // if (get_date < 10) {
+            //     get_date = "0" + get_date;
+            // }
             const time = hours + ":" + minutes;
             const userTime = document.getElementById('user-time').innerText = time;
             const userDay = document.getElementById('user-day').innerText = days[day];
