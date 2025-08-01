@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Catalogue extends Model
 {
@@ -21,7 +22,7 @@ class Catalogue extends Model
         'published_year'
     ];
 
-    
+
     public function scopeFilter($query, array $filters)
     {
         //search
@@ -42,5 +43,10 @@ class Catalogue extends Model
          if ($filters['category'] ?? false) {
             $query->where('category', 'like', '%' . $filters['category'] . '%');
         }
+    }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class, 'catalogue_id');
     }
 }

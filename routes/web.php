@@ -30,20 +30,17 @@ Route::get('/library-catalogue/category/{category}', [CatalogueController::class
 
 
 //book with id
-Route::get('/book/{id}', [CatalogueController::class, 'show']);
+Route::get('/book/{book}', [CatalogueController::class, 'show'])->name('book.show'); // Added a name for easier reference
 
 //exam-bank
 Route::get('/exam-bank', function () {
     return response('<p>Exams Coming Soon!!</p>');
 });
 
-//! USER -- Add them to the authenticated routes later
-
-
 // Authenticated User Routes (Student/General User)
 Route::middleware(['auth', 'verified'])->group(function () {
-    //User dashboard
-//    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
+    // User dashboard
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
 
     // Returned books
     Route::get('/returned-books', [UserController::class, 'myReturnedBooks'])->name('returned-books');
@@ -51,12 +48,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Borrowed books
     Route::get('/borrowed-books', [UserController::class, 'myBorrowedBooks'])->name('borrowed-books');
 
-    //User penalties
+    // User penalties
     Route::get('/my-penalties', [UserController::class, 'myPenalties'])->name('my-penalties');
 
+    // Route for borrowing/reserving a book
+    Route::post('/book/{book}/borrow', [CatalogueController::class, 'borrowBook'])->name('book.borrow');
 
     // Breeze Profile Routes (keep these as they are)
-    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -76,6 +74,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     Route::get('/loans', [AdminController::class, 'manageLoans'])->name('loans');
     Route::get('/reservations', [AdminController::class, 'manageReservations'])->name('reservations');
+    // FIX: Changed this route from POST to PUT to match the form's @method('PUT')
+    Route::put('/reservations/{reservation}/confirm', [AdminController::class, 'confirmReservationPickup'])->name('reservations.confirm');
+    Route::delete('/reservations/{reservation}/cancel', [AdminController::class, 'cancelReservation'])->name('reservations.cancel');
     Route::get('/fines', [AdminController::class, 'manageFines'])->name('fines');
 
     // Members routes
@@ -83,7 +84,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('/members', [AdminController::class, 'storeMember'])->name('members.store');
     Route::put('/members/{member}', [AdminController::class, 'updateMember'])->name('members.update');
     Route::delete('/members/{member}', [AdminController::class, 'destroyMember'])->name('members.destroy');
-    Route::post('/members/import', [AdminController::class, 'importMembers'])->name('members.import'); // NEW: Route for importing members
+    Route::post('/members/import', [AdminController::class, 'importMembers'])->name('members.import');
 
     // Super Admin Specific Routes (will be further restricted later)
     Route::get('/add-librarian', [AdminController::class, 'addLibrarian'])->name('add-librarian');
@@ -92,24 +93,3 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
 // Laravel Breeze Auth Routes (keep these as they are)
 require __DIR__ . '/auth.php';
-
-
-
-// use App\Http\Controllers\ProfileController;
-// use Illuminate\Support\Facades\Route;
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-
-// require __DIR__.'/auth.php';

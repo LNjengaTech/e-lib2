@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Catalogue;
 use App\Models\User;
+use App\Models\Reservation; // NEW: Import the Reservation model
+use App\Models\Loan; // NEW: Will be used for creating loans later
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB; // NEW: Import DB facade for transactions
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon; // NEW: Import Carbon for date/time manipulation
+use Illuminate\Support\Facades\Log; // NEW: Import Log for error logging
 
 class AdminController extends Controller
 {
@@ -25,13 +29,13 @@ class AdminController extends Controller
      * Display the manage books page.
      * Accessible by authenticated librarians/admins.
      */
-    public function manageBooks()
+    public function manageBooks(Request $request) // Added Request for filtering
     {
-        // Fetch all books from the database
+        // Fetch all books from the database with filtering and pagination
         $books = Catalogue::latest()
-                ->filter(request(['search', 'tags', 'category']))
-                ->paginate(10);
-        $books = Catalogue::paginate(10); // Paginate the results, adjust the number as needed
+            ->filter($request->only(['search', 'tags', 'category'])) // Assuming filter method in Catalogue model
+            ->paginate(10);
+
         // Pass the fetched books to the view
         return view('admin-views.manage-books', compact('books'));
     }
@@ -47,14 +51,14 @@ class AdminController extends Controller
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
-               // 'isbn' => 'required|string|unique:books,isbn|max:255', // Ensure ISBN is unique
-                'category' => 'required|string|max:255', // New validation rule for category
+                'isbn' => 'required|string|unique:catalogue,isbn|max:255', // Corrected table name to 'catalogue'
+                'category' => 'required|string|max:255',
                 'description' => 'required|string',
                 'total_copies' => 'required|integer|min:0',
-                'available_copies' => 'required|integer|min:0',
-                'published_year' => 'required',
-                'tags' => 'required',
-                'image' => 'nullable|url|max:2048', // Validate as a URL, optional
+                'available_copies' => 'required|integer|min:0|lte:total_copies', // available_copies cannot exceed total_copies
+                'published_year' => 'required|integer|min:1000|max:' . (date('Y') + 1), // Sensible range for years
+                'tags' => 'required|string|max:255', // Ensure tags is a string
+                'image' => 'nullable|url|max:2048',
             ]);
 
             // Create a new Book instance and fill it with validated data
@@ -63,10 +67,9 @@ class AdminController extends Controller
             // Redirect back to the manage books page with a success message
             return redirect()->route('admin.books')->with('success', 'Book added successfully!');
         } catch (ValidationException $e) {
-            // If validation fails, redirect back with input and errors
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            // Catch any other exceptions and redirect with a generic error message
+            Log::error('Error adding book: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while adding the book. Please try again.')->withInput();
         }
     }
@@ -81,30 +84,26 @@ class AdminController extends Controller
     public function updateBook(Request $request, Catalogue $book)
     {
         try {
-            // Validate the incoming request data
             $validatedData = $request->validate([
-              //  'isbn' => 'required|string|unique:books,isbn,' . $book->id . '|max:255', // Ensure ISBN is unique, except for the current book
+                'isbn' => 'required|string|unique:catalogue,isbn,' . $book->id . '|max:255', // Corrected table name to 'catalogue'
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
-                'category' => 'required|string|max:255', // New validation rule for category
+                'category' => 'required|string|max:255',
                 'description' => 'required|string',
                 'total_copies' => 'required|integer|min:0',
-                'available_copies' => 'required|integer|min:0',
-                'published_year' => 'required',
-                'tags' => 'required',
-                'image' => 'nullable|url|max:2048', // Validate as a URL, optional
+                'available_copies' => 'required|integer|min:0|lte:total_copies', // available_copies cannot exceed total_copies
+                'published_year' => 'required|integer|min:1000|max:' . (date('Y') + 1),
+                'tags' => 'required|string|max:255',
+                'image' => 'nullable|url|max:2048',
             ]);
 
-            // Update the book with validated data
             $book->update($validatedData);
 
-            // Redirect back to the manage books page with a success message
             return redirect()->route('admin.books')->with('success', 'Book updated successfully!');
         } catch (ValidationException $e) {
-            // If validation fails, redirect back with input and errors
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            // Catch any other exceptions and redirect with a generic error message
+            Log::error('Error updating book: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while updating the book. Please try again.')->withInput();
         }
     }
@@ -118,13 +117,19 @@ class AdminController extends Controller
     public function destroyBook(Catalogue $book)
     {
         try {
-            // Delete the book
-            $book->delete();
+            // Prevent deletion if there are active loans or pending reservations for this book
+            if ($book->reservations()->where('status', 'pending')->exists()) {
+                return redirect()->back()->with('error', 'Cannot delete book: There are pending reservations for this book.');
+            }
+            // Assuming you'll have a Loans model later
+            // if ($book->loans()->whereNull('returned_at')->exists()) {
+            //     return redirect()->back()->with('error', 'Cannot delete book: There are active loans for this book.');
+            // }
 
-            // Redirect back to the manage books page with a success message
+            $book->delete();
             return redirect()->route('admin.books')->with('success', 'Book deleted successfully!');
         } catch (\Exception $e) {
-            // Catch any exceptions during deletion
+            Log::error('Error deleting book: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while deleting the book.')->withInput();
         }
     }
@@ -136,6 +141,7 @@ class AdminController extends Controller
      */
     public function manageLoans()
     {
+        // This will be updated later when we implement the Loan model
         return view('admin-views.manage-loans');
     }
 
@@ -143,10 +149,109 @@ class AdminController extends Controller
      * Display the manage reservations page.
      * Accessible by authenticated librarians/admins.
      */
-    public function manageReservations()
+    public function manageReservations(Request $request)
     {
-        return view('admin-views.manage-reservations');
+        // Fetch all reservations with associated user and book details
+        // Only show 'pending' and 'confirmed_pickup' reservations for active management
+        $reservations = Reservation::with(['user', 'book'])
+                                ->whereIn('status', ['pending', 'confirmed_pickup'])
+                                ->latest('reserved_at') // Order by most recent reservations first
+                                ->paginate(10); // Paginate the results
+
+        return view('admin-views.manage-reservations', compact('reservations'));
     }
+
+    /**
+     * Handle confirming a reservation pickup by a student.
+     * This will transition a reservation to a loan.
+     *
+     * @param \App\Models\Reservation $reservation
+     * @return \Illuminate\Http\Response
+     */
+    public function confirmReservationPickup(Reservation $reservation)
+    {
+        // Start a database transaction
+        DB::beginTransaction();
+
+        try {
+            // Only confirm if the reservation is in 'pending' status
+            if ($reservation->status !== 'pending') {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'This reservation is not in a pending state and cannot be confirmed.');
+            }
+
+            // Check if the user has outstanding fee balances
+            if ($reservation->user->fee_balance > 0) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Cannot confirm pickup: The student has an outstanding fee balance. Please clear their balance first.');
+            }
+
+            // Create a new Loan record (assuming Loan model exists and is imported)
+            // This part will be fully implemented when we work on the Loan model
+            // For now, we'll just update the reservation status.
+            /*
+            Loan::create([
+                'user_id' => $reservation->user_id,
+                'catalogue_id' => $reservation->catalogue_id,
+                'borrowed_at' => Carbon::now(),
+                'due_date' => Carbon::now()->addDays(14), // Example: 14 days loan period
+                'status' => 'borrowed',
+            ]);
+            */
+
+            // Update the reservation status to 'confirmed_pickup'
+            $reservation->update(['status' => 'confirmed_pickup']);
+
+            // No change to available_copies here, as it was decremented on reservation creation.
+            // When the book is returned (via Loan management), available_copies will be incremented.
+
+            DB::commit();
+            return redirect()->route('admin.reservations')->with('success', 'Reservation confirmed and book marked as picked up.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error confirming reservation pickup: ' . $e->getMessage(), ['reservation_id' => $reservation->id]);
+            return redirect()->back()->with('error', 'An error occurred while confirming pickup. Please try again.');
+        }
+    }
+
+    /**
+     * Handle cancelling a reservation.
+     *
+     * @param \App\Models\Reservation $reservation
+     * @return \Illuminate\Http\Response
+     */
+    public function cancelReservation(Reservation $reservation)
+    {
+        // Start a database transaction
+        DB::beginTransaction();
+
+        try {
+            // Only cancel if the reservation is in 'pending' status
+            if ($reservation->status !== 'pending') {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'This reservation cannot be cancelled as it is not in a pending state.');
+            }
+
+            // Update the reservation status to 'cancelled'
+            $reservation->update(['status' => 'cancelled']);
+
+            // Increment the available_copies for the book
+            $book = $reservation->book; // Get the associated book
+            if ($book) {
+                $book->increment('available_copies');
+            }
+
+            DB::commit();
+            return redirect()->route('admin.reservations')->with('success', 'Reservation cancelled successfully and book made available.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error cancelling reservation: ' . $e->getMessage(), ['reservation_id' => $reservation->id]);
+            return redirect()->back()->with('error', 'An error occurred while cancelling the reservation. Please try again.');
+        }
+    }
+
 
     /**
      * Display the manage fines page.
@@ -171,10 +276,10 @@ class AdminController extends Controller
 
         // Apply search filter if a query is present
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('reg_number', 'like', '%' . $search . '%')
-                  ->orWhere('email', 'like', '%' . $search . '%');
+                    ->orWhere('reg_number', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
             });
         }
 
@@ -192,44 +297,36 @@ class AdminController extends Controller
         try {
             // Validate the incoming request data
             $validatedData = $request->validate([
-                'reg_number' => 'required|string|max:255|unique:users,reg_number', // Validate uniqueness against users table
+                'reg_number' => 'required|string|max:255|unique:users,reg_number',
                 'full_name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email', // Validate uniqueness against users table
+                'email' => 'required|string|email|max:255|unique:users,email',
                 'fee_balance' => 'required|numeric|min:0',
             ], [], [
-                // Custom error bag name for this form, so errors don't clash with other forms
                 'reg_number' => 'memberAdding',
                 'full_name' => 'memberAdding',
                 'email' => 'memberAdding',
                 'fee_balance' => 'memberAdding',
             ]);
 
-            // Extract first name for password generation
             $firstName = Str::before($validatedData['full_name'], ' ');
-
-            // Generate password: first name + registration number
             $generatedPassword = $firstName . $validatedData['reg_number'];
 
-            // Create a new User record with all details
-            $user = User::create([
+            User::create([
                 'name' => $validatedData['full_name'],
                 'email' => $validatedData['email'],
-                'password' => Hash::make($generatedPassword), // Hash the generated password
-                'utype' => 'USR', // Assign the 'USR' type for regular users/students
-                'reg_number' => $validatedData['reg_number'], // Store reg_number in users table
-                'fee_balance' => $validatedData['fee_balance'], // Store fee_balance in users table
+                'password' => Hash::make($generatedPassword),
+                'utype' => 'USR',
+                'reg_number' => $validatedData['reg_number'],
+                'fee_balance' => $validatedData['fee_balance'],
             ]);
 
-            // Redirect back to the manage members page with a success message
-            // In a real application, you would securely communicate this password to the student.
             return redirect()->route('admin.members')->with('success', 'Member account created successfully! Initial password: ' . $generatedPassword);
         } catch (ValidationException $e) {
-            // If validation fails, redirect back with input and errors, using a named error bag
             return redirect()->back()
-                             ->withErrors($e->errors(), 'memberAdding') // Use the 'memberAdding' error bag
-                             ->withInput();
+                ->withErrors($e->errors(), 'memberAdding')
+                ->withInput();
         } catch (\Exception $e) {
-            // Catch any other exceptions
+            Log::error('Error adding member: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while adding the member: ' . $e->getMessage())->withInput();
         }
     }
@@ -238,27 +335,24 @@ class AdminController extends Controller
      * Handle the update of an existing member.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $member // Using User model for members
+     * @param  \App\Models\User  $member
      * @return \Illuminate\Http\Response
      */
     public function updateMember(Request $request, User $member)
     {
         try {
-            // Validate the incoming request data
             $validatedData = $request->validate([
-                'reg_number' => 'required|string|max:255|unique:users,reg_number,' . $member->id, // Unique except for current user
+                'reg_number' => 'required|string|max:255|unique:users,reg_number,' . $member->id,
                 'full_name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $member->id, // Unique except for current user
+                'email' => 'required|string|email|max:255|unique:users,email,' . $member->id,
                 'fee_balance' => 'required|numeric|min:0',
             ], [], [
-                // Custom error bag name for this form
                 'reg_number' => 'memberEditing',
                 'full_name' => 'memberEditing',
                 'email' => 'memberEditing',
                 'fee_balance' => 'memberEditing',
             ]);
 
-            // Update the member (User model) with validated data
             $member->update([
                 'name' => $validatedData['full_name'],
                 'email' => $validatedData['email'],
@@ -268,12 +362,12 @@ class AdminController extends Controller
 
             return redirect()->route('admin.members')->with('success', 'Member updated successfully!');
         } catch (ValidationException $e) {
-            // Flash the member ID to re-open the modal with errors
             $request->session()->flash('editingMemberId', $member->id);
             return redirect()->back()
-                             ->withErrors($e->errors(), 'memberEditing') // Use the 'memberEditing' error bag
-                             ->withInput();
+                ->withErrors($e->errors(), 'memberEditing')
+                ->withInput();
         } catch (\Exception $e) {
+            Log::error('Error updating member: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while updating the member: ' . $e->getMessage())->withInput();
         }
     }
@@ -281,20 +375,30 @@ class AdminController extends Controller
     /**
      * Handle the deletion of a member.
      *
-     * @param  \App\Models\User  $member // Using User model for members
+     * @param  \App\Models\User  $member
      * @return \Illuminate\Http\Response
      */
     public function destroyMember(User $member)
     {
         try {
-            // Ensure only 'USR' type users can be deleted from this interface
             if ($member->utype !== 'USR') {
                 return redirect()->back()->with('error', 'Only student members can be deleted from this page.');
             }
 
+            // Prevent deletion if the member has active loans or pending reservations
+            if ($member->reservations()->where('status', 'pending')->exists()) {
+                return redirect()->back()->with('error', 'Cannot delete member: They have pending book reservations.');
+            }
+            // Assuming you'll have a Loan model later
+            // if ($member->loans()->whereNull('returned_at')->exists()) {
+            //     return redirect()->back()->with('error', 'Cannot delete member: They have active book loans.');
+            // }
+
+
             $member->delete();
             return redirect()->route('admin.members')->with('success', 'Member deleted successfully!');
         } catch (\Exception $e) {
+            Log::error('Error deleting member: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while deleting the member: ' . $e->getMessage());
         }
     }
@@ -309,9 +413,9 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'import_file' => 'required|file|mimes:csv,txt|max:2048', // Max 2MB, CSV or plain text
+                'import_file' => 'required|file|mimes:csv,txt|max:2048',
             ], [], [
-                'import_file' => 'importingMembers', // Custom error bag for import
+                'import_file' => 'importingMembers',
             ]);
 
             $file = $request->file('import_file');
@@ -321,11 +425,9 @@ class AdminController extends Controller
             $failedCount = 0;
             $errors = [];
 
-            // Open the CSV file
             if (($handle = fopen($filePath, 'r')) !== FALSE) {
-                $header = fgetcsv($handle, 1000, ','); // Read header row
+                $header = fgetcsv($handle, 1000, ',');
 
-                // Map header columns to expected keys for validation
                 $columnMap = [
                     'full_name' => -1,
                     'email' => -1,
@@ -333,30 +435,26 @@ class AdminController extends Controller
                     'fee_balance' => -1,
                 ];
 
-                // Find column indices
                 foreach ($header as $index => $colName) {
-                    $cleanedColName = Str::snake(trim(strtolower($colName))); // Normalize column names
+                    $cleanedColName = Str::snake(trim(strtolower($colName)));
                     if (array_key_exists($cleanedColName, $columnMap)) {
                         $columnMap[$cleanedColName] = $index;
                     }
                 }
 
-                // Check if all required columns are present
                 foreach ($columnMap as $colName => $index) {
                     if ($index === -1) {
                         return redirect()->back()->with('error', "Missing required column in CSV: '{$colName}'. Please ensure your CSV has 'full_name', 'email', 'reg_number', 'fee_balance' columns.")->withInput();
                     }
                 }
 
-                $rowNumber = 1; // Start from 1 for actual data rows (after header)
+                $rowNumber = 1;
                 while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
                     $rowNumber++;
-                    // Skip empty rows
                     if (empty(array_filter($data))) {
                         continue;
                     }
 
-                    // Extract data based on column map
                     $rowData = [
                         'full_name' => $data[$columnMap['full_name']] ?? null,
                         'email' => $data[$columnMap['email']] ?? null,
@@ -364,9 +462,8 @@ class AdminController extends Controller
                         'fee_balance' => $data[$columnMap['fee_balance']] ?? null,
                     ];
 
-                    DB::beginTransaction(); // Start a database transaction for each row
+                    DB::beginTransaction();
                     try {
-                        // Validate row data
                         $validator = \Illuminate\Support\Facades\Validator::make($rowData, [
                             'full_name' => 'required|string|max:255',
                             'email' => 'required|string|email|max:255|unique:users,email',
@@ -377,30 +474,26 @@ class AdminController extends Controller
                         if ($validator->fails()) {
                             $failedCount++;
                             $errors[] = "Row {$rowNumber}: " . implode(', ', $validator->errors()->all());
-                            DB::rollBack(); // Rollback transaction for this row
-                            continue; // Skip to next row
+                            DB::rollBack();
+                            continue;
                         }
 
-                        // Extract first name for password generation
                         $firstName = Str::before($rowData['full_name'], ' ');
-
-                        // Generate password: first name + registration number
                         $generatedPassword = $firstName . $rowData['reg_number'];
 
-                        // Create a new User record
                         User::create([
                             'name' => $rowData['full_name'],
                             'email' => $rowData['email'],
                             'password' => Hash::make($generatedPassword),
-                            'utype' => 'USR', // Assign 'USR' type
+                            'utype' => 'USR',
                             'reg_number' => $rowData['reg_number'],
                             'fee_balance' => $rowData['fee_balance'],
                         ]);
 
                         $importedCount++;
-                        DB::commit(); // Commit transaction for this row
+                        DB::commit();
                     } catch (\Exception $e) {
-                        DB::rollBack(); // Rollback on any exception
+                        DB::rollBack();
                         $failedCount++;
                         $errors[] = "Row {$rowNumber}: " . $e->getMessage();
                     }
@@ -420,9 +513,10 @@ class AdminController extends Controller
 
         } catch (ValidationException $e) {
             return redirect()->back()
-                             ->withErrors($e->errors(), 'importingMembers')
-                             ->withInput();
+                ->withErrors($e->errors(), 'importingMembers')
+                ->withInput();
         } catch (\Exception $e) {
+            Log::error('Error importing members: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred during import: ' . $e->getMessage())->withInput();
         }
     }
