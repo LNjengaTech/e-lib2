@@ -53,7 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-penalties', [UserController::class, 'myPenalties'])->name('my-penalties');
 
     // Route for borrowing/reserving a book
-    Route::post('/book/{book}/borrow', [CatalogueController::class, 'borrowBook'])->name('book.borrow');
+    //Route::post('/book/{book}/borrow', [CatalogueController::class, 'borrowBook'])->name('book.borrow');
 
     // Breeze Profile Routes (keep these as they are)
     Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');

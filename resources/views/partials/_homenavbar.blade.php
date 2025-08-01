@@ -24,7 +24,7 @@
                 </hr>
                 <li
                     class="mx-6 max-1000px:mx-2 max-890px:mx-1  cursor-pointer hover:bg-light hover:text-dark transition-all  rounded duration-300">
-                    <a href={{ Auth()->user()->utype === 'ADM' ? '/admin/dashboard' : 'user-dashboard' }} class="p-1">My
+                    <a href={{ Auth()->user()->utype === 'ADM' ? '/admin/dashboard' : '/user-dashboard' }} class="p-1">My
                         Dashboard</a>
                     {{--  $user->utype === 'ADM' ? '/admin/dashboard' : '/user-dashboard' --}}
                 </li>

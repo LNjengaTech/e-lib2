@@ -49,4 +49,10 @@ class Catalogue extends Model
     {
         return $this->hasMany(Reservation::class, 'catalogue_id');
     }
+
+
+    public function loans(): HasMany
+    {
+        return $this->hasMany(Loan::class, 'catalogue_id');
+    }
 }

@@ -153,7 +153,7 @@ class AdminController extends Controller
     {
         // Fetch all reservations with associated user and book details
         // Only show 'pending' and 'confirmed_pickup' reservations for active management
-        $reservations = Reservation::with(['user', 'book'])
+        $reservations = Reservation::with(['user', 'catalogue'])
                                 ->whereIn('status', ['pending', 'confirmed_pickup'])
                                 ->latest('reserved_at') // Order by most recent reservations first
                                 ->paginate(10); // Paginate the results
