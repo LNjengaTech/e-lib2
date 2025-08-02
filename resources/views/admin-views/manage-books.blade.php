@@ -59,7 +59,7 @@
                         }
                     }">
                         <button @click="showAddBookModal = true"
-                            class="mb-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Add New
+                            class="mb-4 px-4 py-2 bg-gray-300 rounded-full border text-gray-900 focus:outline-none border-gray-600 hover:bg-gray-100 hover:text-blue-700">Add New
                             Book</button>
 
                         <div class="overflow-x-auto">
@@ -145,7 +145,7 @@
                                     class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true">
                                 </div>
 
-                                <!-- This element is to trick the browser into centering the modal contents. -->
+                                <!--trick the browser into centering the modal contents. -->
                                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
                                     aria-hidden="true">&#8203;</span>
 
@@ -294,7 +294,7 @@
                                                     Edit Book
                                                 </h3>
                                                 <div class="mt-2">
-                                                    {{-- Use x-bind:action to dynamically set the form action using JS string interpolation --}}
+                                                    {{-- dynamically set the form action using JS string interpolation --}}
                                                     <form x-bind:action="editForm.id ? `/admin/books/${editForm.id}` : '#'" method="POST">
                                                         @csrf
                                                         @method('PUT') {{-- Use PUT method for updates --}}
@@ -433,7 +433,7 @@
                                         <div class="sm:flex sm:items-start">
                                             <div
                                                 class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                                <!-- Heroicon name: outline/exclamation-triangle -->
+                                                <!-- Heroicon: outline/exclamation-triangle -->
                                                 <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg"
                                                     fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                                     stroke="currentColor" aria-hidden="true">

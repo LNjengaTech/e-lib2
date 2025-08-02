@@ -66,12 +66,12 @@
                             <p class="text-gray-700 md:w-2/5">Manage student members and
                                 add new ones.</p>
 
-                            <div
-                                class="flex justify-between flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-3/5">
+                           <div class="flex flex-wrap lg:justify-end items-center gap-2 w-full overflow-x-hidden">
+
                                 <!-- Search Bar -->
                                 <form action="{{ route('admin.members') }}" method="GET"
                                     class="relative w-full md:w-64">
-                                    {{-- The SVG is now purely decorative and positioned within the input's space --}}
+
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400"
                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -82,12 +82,12 @@
                                     <input type="text" name="search" placeholder="Search members..."
                                         class="w-full pl-10 pr-4 py-2 rounded-full border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                         value="{{ request('search') }}">
-                                    {{-- The form will now submit when the user presses Enter in the input field --}}
+
                                 </form>
 
                                 <!-- Add New Member Button -->
                                 <button @click="showAddMemberModal = true"
-                                    class="text-center inline-flex items-center py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                                    class="text-center inline-flex items-center py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-gray-300 rounded-full border border-gray-600 hover:bg-gray-100 hover:text-blue-700 ">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2 -ms-1"
                                         viewBox="0 0 24 24" fill="currentColor" class="size-6">
                                         <path
@@ -99,7 +99,7 @@
 
                                 <!-- Import Button -->
                                 <button @click="showImportMembersModal = true"
-                                    class="text-center inline-flex items-center py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                                    class="text-center inline-flex items-center py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-gray-300 rounded-full border border-gray-600 hover:bg-gray-100 hover:text-blue-700 ">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2 -ms-1"
                                         viewBox="0 0 24 24" fill="currentColor" class="size-6">
                                         <path fill-rule="evenodd"
@@ -179,7 +179,7 @@
                     x-transition:leave-end="opacity-0"
                     class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
-                <!-- This element is to trick the browser into centering the modal contents. -->
+                <!--trick the browser into centering the modal contents. -->
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                 <!-- Modal panel -->

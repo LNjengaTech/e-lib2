@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fine;
 use Illuminate\Http\Request;
 use App\Models\Catalogue;
 use App\Models\User;
@@ -150,7 +151,6 @@ class AdminController extends Controller
     public function manageLoans()
     {
         // Fetch all loans with associated user and book details
-        // Order by borrowed_at (most recent first) and then by returned_at (nulls last for active loans)
         $loans = Loan::with(['user', 'book'])
                      ->orderBy('returned_at') // Nulls first, so active loans appear at top
                      ->latest('borrowed_at') // Then by most recent borrowed date
@@ -186,14 +186,6 @@ class AdminController extends Controller
             if ($book) {
                 $book->increment('available_copies');
             }
-
-            // Optional: Check for overdue fines associated with this loan and mark them as paid if they were daily fines
-            // This logic can be expanded based on your specific fine policy (e.g., only auto-generated fines are cleared)
-            // For now, we assume fines are managed separately or manually marked paid.
-            // If you want to automatically mark related fines as paid upon return, you'd add that logic here.
-            // Example:
-            // $loan->fines()->where('status', 'outstanding')->update(['status' => 'paid', 'paid_at' => Carbon::now()]);
-            // And then decrement user's fee_balance for these fines.
 
             DB::commit();
             return redirect()->route('admin.loans')->with('success', 'Book "' . ($loan->book->title ?? 'N/A') . '" returned successfully!');
@@ -305,8 +297,8 @@ class AdminController extends Controller
     public function manageFines()
     {
         // Fetch all fines with associated user and loan details
-        $fines = Fine::with(['user', 'loan.book']) // Eager load user and loan (and book through loan)
-                     ->latest('issued_at') // Order by most recent fines first
+        $fines = Fine::with(['user', 'loan.book'])
+                     ->latest('issued_at')
                      ->paginate(10);
 
         return view('admin-views.manage-fines', compact('fines'));
@@ -329,7 +321,7 @@ class AdminController extends Controller
 
             // Update the fine status
             $fine->update([
-                'paid_at' => Carbon::now(),
+                // 'paid_at' => Carbon::now()
                 'status' => 'paid',
             ]);
 

@@ -45,7 +45,7 @@
                                             Student Name</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Book Title (if applicable)</th> {{-- Updated column header --}}
+                                            Book Title (if applicable)</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Amount</th>
@@ -54,10 +54,10 @@
                                             Reason</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Issued Date</th> {{-- NEW: Added Issued Date column --}}
+                                            Issued Date</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Paid Date</th> {{-- NEW: Added Paid Date column --}}
+                                            Paid Date</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status</th>
@@ -75,7 +75,7 @@
                                                 <span class="text-xs text-gray-500">Reg: {{ $fine->user->reg_number ?? 'N/A' }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                {{ $fine->loan->book->title ?? 'N/A' }} {{-- Access book title via loan --}}
+                                                {{ $fine->loan->book->title ?? 'N/A' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 ${{ number_format($fine->amount, 2) }}
