@@ -22,26 +22,31 @@
                                     Penalty</th>
                                 <th scope="col"
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Cleared</th>
+                                    Status</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">The Great Novel</td>
+                            @forelse($fines as $fine)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->loan->catalogue->author }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->loan->catalogue->title }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->issued_at }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->amount }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->status }}</td>
+                                </tr>
+
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-gray-500">You have no active fines.</td>
+                                </tr>
+                            @endforelse
+                            {{-- <td class="px-6 py-4 whitespace-nowrap">The Great Novel</td>
                                 <td class="px-6 py-4 whitespace-nowrap">Jane Doe</td>
 
                                 <td class="px-6 py-4 whitespace-nowrap">2025-08-15</td>
                                 <td class="px-6 py-4 whitespace-nowrap">Ksh. 100</td>
-                                <td class="px-6 py-4 whitespace-nowrap">True</td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">Another Story</td>
-                                <td class="px-6 py-4 whitespace-nowrap">John Smith</td>
+                                <td class="px-6 py-4 whitespace-nowrap">True</td> --}}
 
-                                <td class="px-6 py-4 whitespace-nowrap">2025-07-24</td>
-                                <td class="px-6 py-4 whitespace-nowrap">Ksh. 300</td>
-                                <td class="px-6 py-4 whitespace-nowrap">False</td>
-                            </tr>
                             <!-- More rows will be added dynamically -->
                         </tbody>
                     </table>
