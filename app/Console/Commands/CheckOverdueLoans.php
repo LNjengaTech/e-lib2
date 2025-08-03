@@ -53,7 +53,6 @@ class CheckOverdueLoans extends Command
 
             DB::beginTransaction();
             try {
-                // Ensure we compute days overdue as difference from due_date to now
                 $daysOverdue = (int) abs(Carbon::now()->diffInDays($loan->due_date));
                 $daysToFine = $daysOverdue - $this->gracePeriodDays;
 
