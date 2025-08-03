@@ -28,16 +28,25 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($fines as $fine)
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->loan->catalogue->author }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->loan->catalogue->title }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->loan->book->author ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->loan->book->title ?? 'N/A' }}</td>
+
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $fine->issued_at }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $fine->amount }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $fine->status }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                                                        @if ($fine->status === 'outstanding') bg-red-100 text-red-800
+                                                                                        @elseif ($fine->status === 'paid') bg-green-100 text-green-800
+                                                                                        @elseif ($fine->status === 'waived') bg-gray-100 text-gray-800 @endif">
+                                            {{ ucfirst($fine->status) }}
+                                        </span>
+                                    </td>
                                 </tr>
 
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-gray-500">You have no active fines.</td>
+                                    <td colspan="4" class="text-center py-4 text-gray-500">You have no active fines. Please ensure timely returns to avoid penalties.</td>
                                 </tr>
                             @endforelse
                             {{-- <td class="px-6 py-4 whitespace-nowrap">The Great Novel</td>

@@ -78,7 +78,7 @@
                                                 {{ $fine->loan->book->title ?? 'N/A' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                ${{ number_format($fine->amount, 2) }}
+                                                Ksh.{{ number_format($fine->amount, 2) }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 {{ $fine->reason }}
@@ -109,7 +109,7 @@
                                                     </form>
                                                     <form action="{{ route('admin.fines.waive', $fine) }}" method="POST" class="inline-block ml-2">
                                                         @csrf
-                                                        @method('PUT') {{-- Waiving is also an update --}}
+                                                        @method('PUT') 
                                                         <button type="submit"
                                                             class="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600">
                                                             Waive

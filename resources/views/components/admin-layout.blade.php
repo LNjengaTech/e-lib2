@@ -58,7 +58,7 @@
         <!-- Sidebar -->
         <!-- The sidebar is now always controlled by sidebarOpen, overlaying content when open. -->
         <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto
-                      fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out"
+                     fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out"
             :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
             <div class="p-6 border-b border-gray-700 flex items-center justify-between">
                 <a href="/"><img src="/favicon.ico" alt="home" title="home"
@@ -127,26 +127,35 @@
                     {{ __('Members') }}
                 </x-sidebar-nav-link>
 
-                <div class="border-t border-gray-700 my-4 pt-4">
-                    <p class="text-xs uppercase text-gray-400 mb-2 px-3">Super Admin</p>
-                    <x-sidebar-nav-link :href="route('admin.add-librarian')"
-                        :active="request()->routeIs('admin.add-librarian')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM12 14v5m-3-5h6" />
-                        </svg>
-                        {{ __('Add Librarian') }}
-                    </x-sidebar-nav-link>
-                    {{-- Removed 'Create Student Account' as per new requirement --}}
-                </div>
+                @if (Auth::check() && Auth::user()->utype === 'SPRADM')
+                    <div class="border-t border-gray-700 my-4 pt-4">
+                        <p class="text-xs uppercase text-gray-400 mb-2 px-3">Super Admin</p>
+                        <x-sidebar-nav-link :href="route('admin.add-librarian')"
+                            :active="request()->routeIs('admin.add-librarian')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM12 14v5m-3-5h6" />
+                            </svg>
+                            {{ __('Add Librarian') }}
+                        </x-sidebar-nav-link>
+                        <x-sidebar-nav-link :href="route('admin.create-student-account')"
+                            :active="request()->routeIs('admin.create-student-account')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            {{ __('Create Student Account') }}
+                        </x-sidebar-nav-link>
+                    </div>
+                @endif
             </nav>
 
             <div class="p-4 border-t border-gray-700">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-sidebar-nav-link :href="route('logout')" onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                                         this.closest('form').submit();">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -229,7 +238,7 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                                     this.closest('form').submit();">
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </form>

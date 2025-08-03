@@ -148,16 +148,48 @@ class AdminController extends Controller
      * Display the manage loans page.
      * Accessible by authenticated librarians/admins.
      */
+    // public function manageLoans()
+    // {
+    //     // Fetch all loans with associated user and book details
+    //     $loans = Loan::with(['user', 'book'])
+    //                  ->orderBy('returned_at') // Nulls first, so active loans appear at top
+    //                  ->latest('borrowed_at') // Then by most recent borrowed date
+    //                  ->paginate(10);
+
+    //     return view('admin-views.manage-loans', compact('loans'));
+    // }
     public function manageLoans()
     {
         // Fetch all loans with associated user and book details
         $loans = Loan::with(['user', 'book'])
                      ->orderBy('returned_at') // Nulls first, so active loans appear at top
                      ->latest('borrowed_at') // Then by most recent borrowed date
-                     ->paginate(10);
+                     ->get(); // Get all loans first to process status dynamically
+
+        // Dynamically set 'overdue' status for display if not already set by command
+        foreach ($loans as $loan) {
+            if ($loan->status === 'borrowed' && $loan->due_date->isPast()) {
+                // If the loan is 'borrowed' but its due date is in the past,
+                // we consider it 'overdue' for display purposes.
+                // Note: The actual database 'status' column is updated by the Artisan command.
+                // This is for real-time display accuracy.
+                $loan->status = 'overdue';
+            }
+        }
+
+        // Now paginate the processed collection
+        $perPage = 10;
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = $loans->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $loans = new \Illuminate\Pagination\LengthAwarePaginator($currentItems, $loans->count(), $perPage, $currentPage, [
+            'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath()
+        ]);
+
 
         return view('admin-views.manage-loans', compact('loans'));
     }
+
+
 
     /**
      * Handle marking a loan as returned.
@@ -312,31 +344,57 @@ class AdminController extends Controller
      */
     public function markFinePaid(Fine $fine)
     {
+        Log::info("Attempting to mark fine ID: {$fine->id} as paid.");
+
         DB::beginTransaction();
         try {
             if ($fine->status !== 'outstanding') {
                 DB::rollBack();
+                Log::warning("Fine ID: {$fine->id} is not outstanding (current status: {$fine->status}). Skipping mark paid.");
                 return redirect()->back()->with('error', 'This fine is not outstanding and cannot be marked as paid.');
             }
 
-            // Update the fine status
+            // Update the fine status and paid_at timestamp
             $fine->update([
-                // 'paid_at' => Carbon::now()
+                'paid_at' => Carbon::now(),
                 'status' => 'paid',
             ]);
+            Log::info("Fine ID: {$fine->id} updated. New status: {$fine->status}, Paid At: {$fine->paid_at->toDateTimeString()}");
 
             // Decrement the user's fee_balance
             $user = $fine->user;
             if ($user) {
+                $oldBalance = $user->fee_balance;
                 $user->decrement('fee_balance', $fine->amount);
+                Log::info("User ID: {$user->id} fee_balance decremented. Old balance: {$oldBalance}, Fine amount: {$fine->amount}, New balance: {$user->fee_balance}");
+            } else {
+                Log::error("User not found for fine ID: {$fine->id}. User ID: {$fine->user_id}. Fee balance not decremented.");
             }
 
+            // NEW LOGIC: Mark associated loan as returned if it's currently not returned
+            if ($fine->loan && $fine->loan->returned_at === null) {
+                $fine->loan->update([
+                    'returned_at' => Carbon::now(),
+                    'status' => 'returned',
+                ]);
+                Log::info("Loan ID: {$fine->loan->id} status updated to 'returned' after fine payment.");
+
+                // Increment the available copies for the book
+                $book = $fine->loan->book;
+                if ($book) {
+                    $book->increment('available_copies');
+                    Log::info("Book ID: {$book->id} available_copies incremented after loan return via fine payment.");
+                }
+            }
+
+
             DB::commit();
-            return redirect()->route('admin.fines')->with('success', 'Fine of $' . number_format($fine->amount, 2) . ' for ' . ($fine->user->name ?? 'N/A') . ' marked as paid.');
+            Log::info("Transaction committed for fine ID: {$fine->id}. Fine marked paid successfully.");
+            return redirect()->route('admin.fines')->with('success', 'Fine of Ksh. ' . number_format($fine->amount, 2) . ' for ' . ($fine->user->name ?? 'N/A') . ' marked as paid.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error marking fine paid: ' . $e->getMessage(), ['fine_id' => $fine->id]);
+            Log::error('Error marking fine paid for fine ID: ' . $fine->id . '. Message: ' . $e->getMessage(), ['exception_trace' => $e->getTraceAsString()]);
             return redirect()->back()->with('error', 'An error occurred while marking the fine as paid. Please try again.');
         }
     }
@@ -349,10 +407,13 @@ class AdminController extends Controller
      */
     public function waiveFine(Fine $fine)
     {
+        Log::info("Attempting to waive fine ID: {$fine->id}.");
+
         DB::beginTransaction();
         try {
             if ($fine->status !== 'outstanding') {
                 DB::rollBack();
+                Log::warning("Fine ID: {$fine->id} is not outstanding (current status: {$fine->status}). Skipping waive.");
                 return redirect()->back()->with('error', 'This fine is not outstanding and cannot be waived.');
             }
 
@@ -360,23 +421,34 @@ class AdminController extends Controller
             $fine->update([
                 'status' => 'waived',
             ]);
+            Log::info("Fine ID: {$fine->id} updated. New status: {$fine->status}.");
 
             // Decrement the user's fee_balance as it's no longer owed
             $user = $fine->user;
             if ($user) {
+                $oldBalance = $user->fee_balance;
                 $user->decrement('fee_balance', $fine->amount);
+                Log::info("User ID: {$user->id} fee_balance decremented (waived). Old balance: {$oldBalance}, Fine amount: {$fine->amount}, New balance: {$user->fee_balance}");
+            } else {
+                Log::error("User not found for fine ID: {$fine->id}. User ID: {$fine->user_id}. Fee balance not decremented (waived).");
+            }
+
+            // NEW LOGIC: Reset associated loan status if it's currently 'overdue' and not returned
+            if ($fine->loan && $fine->loan->status === 'overdue' && $fine->loan->returned_at === null) {
+                $fine->loan->update(['status' => 'borrowed']);
+                Log::info("Loan ID: {$fine->loan->id} status reset from 'overdue' to 'borrowed' after fine waiver.");
             }
 
             DB::commit();
-            return redirect()->route('admin.fines')->with('success', 'Fine of $' . number_format($fine->amount, 2) . ' for ' . ($fine->user->name ?? 'N/A') . ' waived successfully.');
+            Log::info("Transaction committed for fine ID: {$fine->id}. Fine waived successfully.");
+            return redirect()->route('admin.fines')->with('success', 'Fine of Ksh. ' . number_format($fine->amount, 2) . ' for ' . ($fine->user->name ?? 'N/A') . ' waived successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error waiving fine: ' . $e->getMessage(), ['fine_id' => $fine->id]);
+            Log::error('Error waiving fine for fine ID: ' . $fine->id . '. Message: ' . $e->getMessage(), ['exception_trace' => $e->getTraceAsString()]);
             return redirect()->back()->with('error', 'An error occurred while waiving the fine. Please try again.');
         }
     }
-
 
     /**
      * Display the manage members page.

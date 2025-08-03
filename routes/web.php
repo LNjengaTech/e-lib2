@@ -24,57 +24,43 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-//library-catalogue
 Route::get('/library-catalogue', [CatalogueController::class, 'index']);
-// New route for browsing books by category
 Route::get('/library-catalogue/category/{category}', [CatalogueController::class, 'browseByCategory'])->name('catalogue.byCategory');
 
-
-//book with id
-Route::get('/book/{book}', [CatalogueController::class, 'show'])->name('book.show'); // Added a name for easier reference
-
-//exam-bank
+Route::get('/book/{book}', [CatalogueController::class, 'show'])->name('book.show');
 Route::get('/exam-bank', function () {
     return response('<p>Exams Coming Soon!!</p>');
 });
 
-// Authenticated User Routes (Student/General User)
 Route::middleware(['auth', 'verified'])->group(function () {
-    // User dashboard
+    // Breeze Profile Routes (keep these as they are)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+
+// Authenticated User Routes (Student/General User)
+Route::middleware(['auth', 'verified', 'user'])->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
-
-    // Returned books
     Route::get('/returned-books', [UserController::class, 'myReturnedBooks'])->name('returned-books');
-
-    // Reserved books
     Route::get('/reserved-books', [UserController::class, 'myReservedBooks'])->name('reserved-books');
-
-    // Borrowed books
     Route::get('/borrowed-books', [UserController::class, 'myBorrowedBooks'])->name('borrowed-books');
-
-    // User penalties
     Route::get('/my-penalties', [UserController::class, 'myPenalties'])->name('my-penalties');
-
-    // Route for borrowing/reserving a book
-    //Route::post('/book/{book}/borrow', [CatalogueController::class, 'borrowBook'])->name('book.borrow');
-
     // Breeze Profile Routes (keep these as they are)
     Route::get('/user-dashboard', [UserController::class, 'dashboard'])->name('user-dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    //Borrow book -- Reserve
     Route::post('/borrow/{book}', [ReservationController::class, 'borrow']);
-
-    //Cancel Reservation --User
     Route::patch('/cancel-reservation/{book}', [ReservationController::class, 'cancel'])->name('reservation.cancel');
 
 });
 
 
 // Admin Routes
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // AdminController handles all admin-related actions
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/books', [AdminController::class, 'manageBooks'])->name('books');
@@ -108,9 +94,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('/fines/{fine}/waive', [AdminController::class, 'waiveFine'])->name('fines.waive'); // NEW: Waive Fine
 
 
-    // Super Admin Specific Routes (will be further restricted later)
-    Route::get('/add-librarian', [AdminController::class, 'addLibrarian'])->name('add-librarian');
-    Route::get('/create-student-account', [AdminController::class, 'createStudentAccount'])->name('create-student-account');
+
+
+
+    // Super Admin Specific Routes
+    Route::middleware(['super_admin'])->group(function () { //Apply super_admin middleware
+        Route::get('/add-librarian', [AdminController::class, 'addLibrarian'])->name('add-librarian');
+    });
 });
 
 // Laravel Breeze Auth Routes (keep these as they are)

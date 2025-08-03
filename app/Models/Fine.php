@@ -58,4 +58,6 @@ class Fine extends Model
     {
         return $this->belongsTo(Loan::class);
     }
+
+    
 }
