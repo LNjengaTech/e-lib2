@@ -80,13 +80,13 @@ class AdminController extends Controller
     }
 
     /**
-     * Handle the update of an existing book.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Catalogue  $book
-     * @return \Illuminate\Http\Response
-     */
-    public function updateBook(Request $request, Catalogue $book)
+         * Handle the update of an existing book.
+         *
+         * @param  \Illuminate\Http\Request  $request
+         * @param  \App\Models\Catalogue  $book
+         * @return \Illuminate\Http\RedirectResponse
+         */
+        public function updateBook(Request $request, Catalogue $book)
     {
         try {
             $validatedData = $request->validate([
@@ -117,7 +117,7 @@ class AdminController extends Controller
      * Handle the deletion of a book.
      *
      * @param  \App\Models\Catalogue  $book
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyBook(Catalogue $book)
     {
@@ -195,7 +195,7 @@ class AdminController extends Controller
      * Handle marking a loan as returned.
      *
      * @param \App\Models\Loan $loan
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function markLoanReturned(Loan $loan)
     {
@@ -249,7 +249,7 @@ class AdminController extends Controller
      * This will transition a reservation to a loan.
      *
      * @param \App\Models\Reservation $reservation
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function confirmReservationPickup(Reservation $reservation)
     {
@@ -293,7 +293,7 @@ class AdminController extends Controller
      * Handle cancelling a reservation.
      *
      * @param \App\Models\Reservation $reservation
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function cancelReservation(Reservation $reservation)
     {
@@ -328,7 +328,7 @@ class AdminController extends Controller
      */
     public function manageFines()
     {
-        // Fetch all fines with associated user and loan details
+
         $fines = Fine::with(['user', 'loan.book'])
                      ->latest('issued_at')
                      ->paginate(10);
@@ -340,7 +340,7 @@ class AdminController extends Controller
      * Handle marking a fine as paid.
      *
      * @param \App\Models\Fine $fine
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function markFinePaid(Fine $fine)
     {
@@ -371,7 +371,7 @@ class AdminController extends Controller
                 Log::error("User not found for fine ID: {$fine->id}. User ID: {$fine->user_id}. Fee balance not decremented.");
             }
 
-            // NEW LOGIC: Mark associated loan as returned if it's currently not returned
+            //Mark associated loan as returned if it's currently not returned
             if ($fine->loan && $fine->loan->returned_at === null) {
                 $fine->loan->update([
                     'returned_at' => Carbon::now(),
@@ -403,7 +403,7 @@ class AdminController extends Controller
      * Handle waiving a fine.
      *
      * @param \App\Models\Fine $fine
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function waiveFine(Fine $fine)
     {
@@ -433,7 +433,7 @@ class AdminController extends Controller
                 Log::error("User not found for fine ID: {$fine->id}. User ID: {$fine->user_id}. Fee balance not decremented (waived).");
             }
 
-            // NEW LOGIC: Reset associated loan status if it's currently 'overdue' and not returned
+            //Reset associated loan status if it's currently 'overdue' and not returned
             if ($fine->loan && $fine->loan->status === 'overdue' && $fine->loan->returned_at === null) {
                 $fine->loan->update(['status' => 'borrowed']);
                 Log::info("Loan ID: {$fine->loan->id} status reset from 'overdue' to 'borrowed' after fine waiver.");
@@ -519,7 +519,7 @@ class AdminController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\User  $member
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateMember(Request $request, User $member)
     {
@@ -559,7 +559,7 @@ class AdminController extends Controller
      * Handle the deletion of a member.
      *
      * @param  \App\Models\User  $member
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyMember(User $member)
     {
@@ -594,7 +594,7 @@ class AdminController extends Controller
      * Handle the import of members from a CSV file.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function importMembers(Request $request)
     {

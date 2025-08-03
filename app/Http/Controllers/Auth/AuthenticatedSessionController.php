@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
 
 
         return redirect(
-            $user->utype === 'ADM && SPRADM' ? '/admin/dashboard' : '/user-dashboard'
+            $user->utype === 'ADM', 'SPRADM' ? '/admin/dashboard' : '/user-dashboard'
         );
         //return redirect()->intended(route('user-dashboard', absolute: false));
     }
