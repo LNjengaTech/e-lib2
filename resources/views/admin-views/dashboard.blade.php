@@ -123,7 +123,7 @@
                 @endif
             </div>
 
-            <!-- Books Nearing Due Date (This will now stack below the first two on lg screens) -->
+            <!-- Books Nearing Due Date -->
             <div class=" bg-white p-6 rounded-lg shadow-md">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Books Nearing Due Date</h3>
                 @if ($nearingDueBooks->isEmpty())
