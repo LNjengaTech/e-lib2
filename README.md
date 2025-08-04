@@ -86,7 +86,7 @@ In production: Set up a CRON job on your server to run:
 ### 11.  🧑‍💻 Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change.
 
-#### 12.  go
+#### 12.  licence
 This project is open-sourced under the MIT License.
 
 
