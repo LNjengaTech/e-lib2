@@ -19,8 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class, // NEW: Register super_admin middleware
         ]);
-
-        // You can also add global middleware or middleware groups here if needed
     })
     ->withCommands([
         CheckOverdueLoans::class,

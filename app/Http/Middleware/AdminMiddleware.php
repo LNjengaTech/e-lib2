@@ -16,13 +16,14 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if the user is authenticated and if their utype is 'ADM' OR 'SPRADM'
         if (Auth::check() && (Auth::user()->utype === 'ADM' || Auth::user()->utype === 'SPRADM')) {
             return $next($request); // User is an admin or super admin, proceed
         }
 
-        // If not an admin or super admin, redirect them or abort with a 403 Forbidden error.
+        // If not an admin or super admin
         return redirect('/dashboard')->with('error', 'You do not have administrative access.');
+
+        
         // Alternatively, to show a 403 page:
         // abort(403, 'Unauthorized access.');
     }

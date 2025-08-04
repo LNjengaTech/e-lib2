@@ -16,18 +16,15 @@ class UserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-       // Check if the user is authenticated and if their utype is 'USR'
         if (Auth::check() && Auth::user()->utype === 'USR') {
-            return $next($request); // User is a regular user, proceed
+            return $next($request);
         }
 
-        // If not a regular user (i.e., ADM or SPRADM), redirect them.
-        // Admins and Super Admins should be redirected to their respective dashboards.
         if (Auth::check() && (Auth::user()->utype === 'ADM' || Auth::user()->utype === 'SPRADM')) {
             return redirect()->route('admin.dashboard')->with('error', 'You do not have access to the user dashboard.');
         }
 
-        // If not authenticated at all, redirect to login (or wherever your 'auth' middleware sends them)
+        // If not authenticated at all
         return redirect('/login')->with('error', 'Please log in to access this page.');
     }
 }

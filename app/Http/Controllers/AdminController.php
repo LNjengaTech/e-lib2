@@ -23,15 +23,136 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
+        // --- Existing Dashboard Data ---
         $totalBooks = Catalogue::count();
-        $totalMembers = User::count();
+        // Count only actual members (users with 'USR' utype)
+        $totalMembers = User::where('utype', 'USR')->count();
         $booksBorrowed = Loan::where('returned_at', null)->count();
-        $overdueBooks = Loan::where('due_date', '<', now())->where('returned_at', null)->count();
+        $overdueBooks = Loan::where('due_date', '<', Carbon::now())
+                            ->where('returned_at', null)
+                            ->count();
+
+        // --- Recent Activity Feed ---
+        // Fetch recent loans (borrowed or returned) and fines (issued or paid)
+        $recentActivities = collect()
+            // Recent borrowings
+            ->merge(Loan::with(['user', 'book'])
+                ->orderBy('borrowed_at', 'desc')
+                ->limit(5) // Limit to 5 most recent borrowings
+                ->get()
+                ->map(function ($loan) {
+                    return [
+                        'type' => 'loan',
+                        'description' => "Book '{$loan->book->title}' borrowed by {$loan->user->name}",
+                        'date' => $loan->borrowed_at,
+                        'link' => route('admin.loans'), // Link to manage loans page
+                    ];
+                })
+            )
+            // Recent returns
+            ->merge(Loan::with(['user', 'book'])
+                ->whereNotNull('returned_at')
+                ->orderBy('returned_at', 'desc')
+                ->limit(5)
+                ->get()
+                ->map(function ($loan) {
+                    return [
+                        'type' => 'return',
+                        'description' => "Book '{$loan->book->title}' returned by {$loan->user->name}",
+                        'date' => $loan->returned_at,
+                        'link' => route('admin.loans'),
+                    ];
+                })
+            )
+            // Recent fines issued
+            ->merge(Fine::with('user')
+                ->orderBy('issued_at', 'desc')
+                ->limit(3)
+                ->get()
+                ->map(function ($fine) {
+                    return [
+                        'type' => 'fine_issued',
+                        'description' => "Fine of Ksh. " . number_format($fine->amount, 2) . " issued to {$fine->user->name} for '{$fine->reason}'",
+                        'date' => $fine->issued_at,
+                        'link' => route('admin.fines'),
+                    ];
+                })
+            )
+            // Recent fines paid
+            ->merge(Fine::with('user')
+                ->whereNotNull('paid_at')
+                ->orderBy('paid_at', 'desc')
+                ->limit(3)
+                ->get()
+                ->map(function ($fine) {
+                    return [
+                        'type' => 'fine_paid',
+                        'description' => "Fine of Ksh. " . number_format($fine->amount, 2) . " paid by {$fine->user->name}",
+                        'date' => $fine->paid_at,
+                        'link' => route('admin.fines'),
+                    ];
+                })
+            )
+            ->sortByDesc('date')
+            ->take(8); // Take the top 8 overall recent activities for display
+
+
+        // --- Overdue Books Spotlight ---
+        // Fetches up to 5 most critically overdue books (oldest due_date first)
+        $criticalOverdueBooks = Loan::with(['user', 'book'])
+            ->where('due_date', '<', Carbon::now()) // Due date is in the past
+            ->where('returned_at', null)
+            ->orderBy('due_date', 'asc')
+            ->limit(5) // Get top 5
+            ->get();
+
+        // --- Books Nearing Due Date ---
+        // Fetches up to 5 books due in the next 3 days
+        $nearingDueBooks = Loan::with(['user', 'book'])
+            ->whereBetween('due_date', [Carbon::now(), Carbon::now()->addDays(3)]) // Due within today and next 3 days
+            ->where('returned_at', null) // Not yet returned
+            ->orderBy('due_date', 'asc')
+            ->limit(5) // Get top 5
+            ->get();
+
+        // --- Books Borrowed Over Time (Graph Data for last 30 days) ---
+        // Query to get daily borrowing counts for the last 30 days
+        $borrowingTrends = Loan::select(
+                DB::raw('DATE(borrowed_at) as borrow_date'),
+                DB::raw('COUNT(*) as total_borrowed') // Count borrowings per day
+            )
+            ->where('borrowed_at', '>=', Carbon::now()->subDays(29)->startOfDay()) // Start 29 days ago at the beginning of the day
+            ->groupBy('borrow_date') // Group by date
+            ->orderBy('borrow_date', 'asc') // Order chronologically
+            ->get();
+
+        $chartLabels = []; // Array to hold date labels for the chart
+        $chartData = [];   // Array to hold borrowing counts for the chart
+
+        // Populate all 30 days, even if no borrowings occurred on a specific day
+        $period = Carbon::now()->subDays(29)->startOfDay(); // Start from 29 days ago (inclusive of today means 30 days)
+        while ($period <= Carbon::now()->endOfDay()) {
+            $dateString = $period->format('Y-m-d'); // Format for matching with query results
+            $chartLabels[] = $period->format('M d'); // Format for display on the chart (e.g., "Aug 04")
+
+            // Find the count for the current date, or default to 0 if not found
+            $count = $borrowingTrends->firstWhere('borrow_date', $dateString)['total_borrowed'] ?? 0;
+            $chartData[] = $count;
+
+            $period->addDay(); // Move to the next day
+        }
+
+        // Pass all data to the dashboard view
         return view('admin-views.dashboard', [
             'totalBooks' => $totalBooks,
             'totalMembers' => $totalMembers,
             'booksBorrowed' => $booksBorrowed,
             'overdueBooks' => $overdueBooks,
+            'recentActivities' => $recentActivities, // New data
+            'criticalOverdueBooks' => $criticalOverdueBooks, // New data
+            'nearingDueBooks' => $nearingDueBooks, // New data
+            'chartLabels' => json_encode($chartLabels), // New data for Chart.js
+            'chartData' => json_encode($chartData),     // New data for Chart.js
         ]);
     }
 
@@ -58,7 +179,7 @@ class AdminController extends Controller
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
-                'isbn' => 'required|string|unique:catalogue,isbn|max:255',
+                'isbn' => 'required|string|unique:catalogues,isbn|max:255', // Corrected table name to 'catalogues'
                 'category' => 'required|string|max:255',
                 'description' => 'required|string',
                 'total_copies' => 'required|integer|min:0',
@@ -80,17 +201,17 @@ class AdminController extends Controller
     }
 
     /**
-         * Handle the update of an existing book.
-         *
-         * @param  \Illuminate\Http\Request  $request
-         * @param  \App\Models\Catalogue  $book
-         * @return \Illuminate\Http\RedirectResponse
-         */
-        public function updateBook(Request $request, Catalogue $book)
+     * Handle the update of an existing book.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Catalogue  $book
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateBook(Request $request, Catalogue $book)
     {
         try {
             $validatedData = $request->validate([
-                'isbn' => 'required|string|unique:catalogue,isbn,' . $book->id . '|max:255',
+                'isbn' => 'required|string|unique:catalogues,isbn,' . $book->id . '|max:255', // Corrected table name to 'catalogues'
                 'title' => 'required|string|max:255',
                 'author' => 'required|string|max:255',
                 'category' => 'required|string|max:255',
@@ -148,36 +269,26 @@ class AdminController extends Controller
      * Display the manage loans page.
      * Accessible by authenticated librarians/admins.
      */
-    // public function manageLoans()
-    // {
-    //     // Fetch all loans with associated user and book details
-    //     $loans = Loan::with(['user', 'book'])
-    //                  ->orderBy('returned_at') // Nulls first, so active loans appear at top
-    //                  ->latest('borrowed_at') // Then by most recent borrowed date
-    //                  ->paginate(10);
-
-    //     return view('admin-views.manage-loans', compact('loans'));
-    // }
     public function manageLoans()
     {
         // Fetch all loans with associated user and book details
         $loans = Loan::with(['user', 'book'])
-                     ->orderBy('returned_at') // Nulls first, so active loans appear at top
-                     ->latest('borrowed_at') // Then by most recent borrowed date
-                     ->get(); // Get all loans first to process status dynamically
+                      ->orderBy('returned_at') // Nulls first, so active loans appear at top
+                      ->latest('borrowed_at') // Then by most recent borrowed date
+                      ->get(); // Get all loans first to process status dynamically
 
         // Dynamically set 'overdue' status for display if not already set by command
         foreach ($loans as $loan) {
             if ($loan->status === 'borrowed' && $loan->due_date->isPast()) {
-                // If the loan is 'borrowed' but its due date is in the past,
-                // we consider it 'overdue' for display purposes.
+
                 // Note: The actual database 'status' column is updated by the Artisan command.
                 // This is for real-time display accuracy.
+
                 $loan->status = 'overdue';
             }
         }
 
-        // Now paginate the processed collection
+        //paginate the processed collection
         $perPage = 10;
         $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
         $currentItems = $loans->slice(($currentPage - 1) * $perPage, $perPage)->all();
@@ -237,9 +348,9 @@ class AdminController extends Controller
     public function manageReservations(Request $request)
     {
         $reservations = Reservation::with(['user', 'catalogue'])
-                                ->whereIn('status', ['pending', 'confirmed_pickup'])
-                                ->latest('reserved_at')
-                                ->paginate(10);
+                                 ->whereIn('status', ['pending', 'confirmed_pickup'])
+                                 ->latest('reserved_at')
+                                 ->paginate(10);
 
         return view('admin-views.manage-reservations', compact('reservations'));
     }

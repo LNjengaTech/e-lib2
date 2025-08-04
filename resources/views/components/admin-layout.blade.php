@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }} - Admin</title>
+    <title>{{ config('app.name', 'Library') }} - Admin</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -14,6 +14,10 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Chart.js CDN - Include it directly in the head or just before </body> -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         /* Custom scrollbar for sidebar */
         .sidebar::-webkit-scrollbar {
@@ -54,9 +58,7 @@
 <body class="font-sans antialiased bg-gray-100 text-gray-900">
     <!-- Main wrapper for the entire layout, controlled by Alpine.js for sidebar toggle -->
     <div class="min-h-screen flex" x-data="{ sidebarOpen: true }">
-        <!-- sidebarOpen is now false by default for all screens -->
-        <!-- Sidebar -->
-        <!-- The sidebar is now always controlled by sidebarOpen, overlaying content when open. -->
+       
         <aside class="w-64 bg-gray-800 text-white flex flex-col min-h-screen shadow-lg sidebar overflow-y-auto
                      fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out"
             :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
@@ -66,7 +68,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
                     <span class="text-xl font-semibold">Library Admin</span>
                 </a>
-                <!-- Close button for sidebar - now always visible when sidebar is open -->
+                <!-- Close button for sidebar-->
                 <button @click="sidebarOpen = false"
                     class="flex items-center justify-center text-gray-300 hover:text-white rounded-md focus:outline-none hover:bg-gray-700 transition">
                     <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -99,7 +101,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
                     </svg>
-                    {{ __('Loans') }}
+                    {{ __('Checked-Out (Loans)') }}
                 </x-sidebar-nav-link>
                 <x-sidebar-nav-link :href="route('admin.reservations')"
                     :active="request()->routeIs('admin.reservations')">
@@ -168,13 +170,11 @@
         </aside>
 
         <!-- Main Content Area -->
-        <!-- The main content area now shifts based on sidebarOpen state for all screen sizes -->
-        <div class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
-            :class="{ 'ml-64': sidebarOpen, 'ml-0': !sidebarOpen }">
+        <div class="flex-1 flex flex-col transition-all duration-300 ease-in-out overflow-x-hidden" :class="{ 'ml-64': sidebarOpen, 'ml-0': !sidebarOpen }">
             <!-- Top Bar -->
             <header class="bg-white shadow-sm py-4 px-6 flex items-center justify-between">
                 <div class="flex items-center">
-                    <!-- Hamburger menu button - hidden when sidebar is open -->
+                    <!-- Hamburger menu button -->
                     <button x-show="!sidebarOpen" @click="sidebarOpen = true"
                         class="p-3 w-12 h-12 flex items-center justify-center text-gray-700 hover:text-gray-900 focus:outline-none">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -322,6 +322,8 @@
             </div>
         </div>
     </div>
+    <!--where @push('scripts') content will be rendered -->
+    @stack('scripts')
 </body>
 
 </html>
